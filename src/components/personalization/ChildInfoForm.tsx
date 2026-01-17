@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import PhotoUpload from './PhotoUpload';
-import { uploadPersonalizationPhoto, updatePersonalization } from '@lib/api/personalization';
+import { uploadPersonalizationPhoto } from '@lib/api/personalization';
 
 const childInfoSchema = z.object({
     childFirstName: z
@@ -17,7 +17,7 @@ const childInfoSchema = z.object({
     languageCode: z.string().min(1, 'Language is required'),
     childPhotoUrl: z.string().min(1, 'Photo is required'),
     gender: z.enum(['male', 'female', 'other'], {
-        errorMap: () => ({ message: 'Please select a gender' }),
+        message: 'Please select a gender',
     }),
 });
 
@@ -140,7 +140,7 @@ export default function ChildInfoForm({
                 const result = await uploadPersonalizationPhoto(personalizationId, file);
                 clearInterval(progressInterval);
                 setUploadProgress(100);
-                
+
                 // Small delay to show 100% before hiding progress
                 setTimeout(() => {
                     setPhotoPreview(result.photoUrl);
@@ -169,7 +169,7 @@ export default function ChildInfoForm({
     const onFormSubmit = async (data: ChildInfoFormData) => {
         console.log('📝 ChildInfoForm submitting with data:', data);
         console.log('   personalizationId:', personalizationId);
-        
+
         // Don't call update API here - the parent component (PersonalizationPage)
         // will create a NEW personalization when handleChildInfoSubmit is called
         // This ensures each personalization is unique
@@ -329,18 +329,17 @@ export default function ChildInfoForm({
                     className={`
                         w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3 px-6 rounded-xl font-bold text-center
                         transition-all duration-200
-                        ${
-                            isFormValid && !isUploadingPhoto
-                                ? 'hover:from-indigo-700 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
-                                : 'opacity-50 cursor-not-allowed'
+                        ${isFormValid && !isUploadingPhoto
+                            ? 'hover:from-indigo-700 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
+                            : 'opacity-50 cursor-not-allowed'
                         }
                     `}
                 >
                     {isUploadingPhoto
                         ? 'Uploading Photo...'
                         : isFormValid
-                        ? 'Preview Book'
-                        : 'Please complete all fields'}
+                            ? 'Preview Book'
+                            : 'Please complete all fields'}
                 </button>
             </div>
         </form>

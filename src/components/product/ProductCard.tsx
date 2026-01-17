@@ -27,7 +27,7 @@ export default function ProductCard({
     basePrice,
     finalPrice,
     isNew = false,
-    productType = 'book',
+    productType: _productType = 'book',
 }: ProductCardProps) {
     return (
         <div className="group bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col border border-gray-100 hover:border-indigo-200">
