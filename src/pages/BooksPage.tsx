@@ -58,7 +58,7 @@ const fetchBooks = async (params: any): Promise<BooksResponse> => {
 
 export default function BooksPage() {
     const [searchParams, setSearchParams] = useSearchParams();
-    
+
     // Get initial values from URL params
     const [search, setSearch] = useState(searchParams.get('search') || '');
     const [idealFor, setIdealFor] = useState<string | null>(searchParams.get('ideal_for') || null);
@@ -236,7 +236,7 @@ export default function BooksPage() {
                     <>
                         {books.length > 0 ? (
                             <>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                     {books.map((book) => (
                                         <ProductCard
                                             key={book.id}
@@ -277,17 +277,16 @@ export default function BooksPage() {
                                                 } else {
                                                     pageNum = page - 2 + i;
                                                 }
-                                                
+
                                                 return (
                                                     <button
                                                         key={pageNum}
                                                         onClick={() => setPage(pageNum)}
                                                         disabled={isFetching}
-                                                        className={`w-10 h-10 rounded-xl font-semibold transition-all ${
-                                                            page === pageNum
-                                                                ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg'
-                                                                : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
-                                                        }`}
+                                                        className={`w-10 h-10 rounded-xl font-semibold transition-all ${page === pageNum
+                                                            ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg'
+                                                            : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                                                            }`}
                                                     >
                                                         {pageNum}
                                                     </button>

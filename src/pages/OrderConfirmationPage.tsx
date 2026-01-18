@@ -93,13 +93,12 @@ export default function OrderConfirmationPage() {
                     <div className="p-6 border-b border-gray-100">
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
-                                <span className={`w-3 h-3 rounded-full ${
-                                    order.status === 'pending' ? 'bg-yellow-400' :
-                                    order.status === 'processing' ? 'bg-blue-400' :
-                                    order.status === 'shipped' ? 'bg-indigo-400' :
-                                    order.status === 'delivered' ? 'bg-green-400' :
-                                    'bg-gray-400'
-                                }`}></span>
+                                <span className={`w-3 h-3 rounded-full ${order.status === 'pending' ? 'bg-yellow-400' :
+                                        order.status === 'processing' ? 'bg-blue-400' :
+                                            order.status === 'shipped' ? 'bg-indigo-400' :
+                                                order.status === 'delivered' ? 'bg-green-400' :
+                                                    'bg-gray-400'
+                                    }`}></span>
                                 <span className="font-medium text-gray-900 capitalize">{order.status}</span>
                             </div>
                             <span className="text-gray-400">•</span>
@@ -121,9 +120,9 @@ export default function OrderConfirmationPage() {
                                     className="h-2 bg-gradient-to-r from-indigo-500 to-green-500 rounded-full transition-all duration-500"
                                     style={{
                                         width: order.status === 'pending' ? '25%' :
-                                               order.status === 'processing' ? '50%' :
-                                               order.status === 'shipped' ? '75%' :
-                                               order.status === 'delivered' ? '100%' : '0%'
+                                            order.status === 'processing' ? '50%' :
+                                                order.status === 'shipped' ? '75%' :
+                                                    order.status === 'delivered' ? '100%' : '0%'
                                     }}
                                 ></div>
                             </div>

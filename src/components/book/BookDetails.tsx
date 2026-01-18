@@ -142,7 +142,7 @@ export default function BookDetails({
                         <svg className="w-5 h-5 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                    <div className="flex flex-col">
+                        <div className="flex flex-col">
                             <span className="font-bold text-gray-900 text-xs uppercase tracking-wide">Size</span>
                             <span className="text-gray-700 font-semibold">8.5 x 11 inches</span>
                         </div>
@@ -151,18 +151,18 @@ export default function BookDetails({
                         <svg className="w-5 h-5 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                         </svg>
-                    <div className="flex flex-col">
+                        <div className="flex flex-col">
                             <span className="font-bold text-gray-900 text-xs uppercase tracking-wide">Pages</span>
                             <span className="text-gray-700 font-semibold">
                                 {specifications?.pages || `${pageCount || 30}-${pageCount + 10 || 40}`}
-                        </span>
+                            </span>
                         </div>
                     </div>
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                         <svg className="w-5 h-5 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                         </svg>
-                    <div className="flex flex-col">
+                        <div className="flex flex-col">
                             <span className="font-bold text-gray-900 text-xs uppercase tracking-wide">Cover</span>
                             <span className="text-gray-700 font-semibold">Hardcover</span>
                         </div>
@@ -171,7 +171,7 @@ export default function BookDetails({
                         <svg className="w-5 h-5 text-indigo-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                         </svg>
-                    <div className="flex flex-col">
+                        <div className="flex flex-col">
                             <span className="font-bold text-gray-900 text-xs uppercase tracking-wide">Shipping</span>
                             <span className="text-gray-700 font-semibold">Worldwide</span>
                         </div>
@@ -228,9 +228,8 @@ export default function BookDetails({
                         What if I need help personalizing?
                     </span>
                     <svg
-                        className={`w-5 h-5 transition-transform flex-shrink-0 text-indigo-600 ${
-                            isHelpOpen ? 'transform rotate-180' : ''
-                        }`}
+                        className={`w-5 h-5 transition-transform flex-shrink-0 text-indigo-600 ${isHelpOpen ? 'transform rotate-180' : ''
+                            }`}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -263,9 +262,8 @@ export default function BookDetails({
                         Can I see a preview before I buy?
                     </span>
                     <svg
-                        className={`w-5 h-5 transition-transform flex-shrink-0 text-indigo-600 ${
-                            isPreviewOpen ? 'transform rotate-180' : ''
-                        }`}
+                        className={`w-5 h-5 transition-transform flex-shrink-0 text-indigo-600 ${isPreviewOpen ? 'transform rotate-180' : ''
+                            }`}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -298,9 +296,8 @@ export default function BookDetails({
                         Delivery, returns, and exchanges
                     </span>
                     <svg
-                        className={`w-5 h-5 transition-transform flex-shrink-0 text-indigo-600 ${
-                            isDeliveryOpen ? 'transform rotate-180' : ''
-                        }`}
+                        className={`w-5 h-5 transition-transform flex-shrink-0 text-indigo-600 ${isDeliveryOpen ? 'transform rotate-180' : ''
+                            }`}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -343,13 +340,12 @@ export default function BookDetails({
                     {[...Array(5)].map((_, i) => (
                         <svg
                             key={i}
-                            className={`w-5 h-5 ${
-                                i < Math.floor(rating)
-                                    ? 'text-yellow-400'
-                                    : i < rating
+                            className={`w-5 h-5 ${i < Math.floor(rating)
+                                ? 'text-yellow-400'
+                                : i < rating
                                     ? 'text-yellow-300'
                                     : 'text-gray-300'
-                            }`}
+                                }`}
                             fill="currentColor"
                             viewBox="0 0 20 20"
                         >

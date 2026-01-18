@@ -50,7 +50,7 @@ const fetchBlogPosts = async (params: any): Promise<BlogResponse> => {
 
 export default function BlogPage() {
     const [searchParams, setSearchParams] = useSearchParams();
-    
+
     // Get initial values from URL params
     const [search, setSearch] = useState(searchParams.get('search') || '');
     const [category, setCategory] = useState<string | null>(searchParams.get('category') || null);

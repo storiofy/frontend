@@ -90,11 +90,10 @@ export default function BookImageGallery({
                         <button
                             key={img.id || index}
                             onClick={() => handleThumbnailClick(img.url, index)}
-                            className={`flex-shrink-0 w-20 h-20 lg:w-24 lg:h-24 rounded-lg overflow-hidden border-2 transition-all ${
-                                selectedImage === img.url
+                            className={`flex-shrink-0 w-20 h-20 lg:w-24 lg:h-24 rounded-lg overflow-hidden border-2 transition-all ${selectedImage === img.url
                                     ? 'border-indigo-600 ring-2 ring-indigo-200'
                                     : 'border-gray-200 hover:border-gray-300'
-                            }`}
+                                }`}
                             aria-label={`View ${img.type || 'image'} ${index + 1}`}
                         >
                             {img.type === 'video' ? (

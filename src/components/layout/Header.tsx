@@ -7,6 +7,7 @@ export default function Header() {
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [isCurrencyMenuOpen, setIsCurrencyMenuOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
     const { user, isAuthenticated, logout } = useAuthStore();
     const items = useCartStore((state) => state.items);
     const itemCount = items.reduce((total, item) => total + item.quantity, 0);
@@ -32,6 +33,18 @@ export default function Header() {
         };
     }, []);
 
+    // Handle scroll for header styling
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 0);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
     const handleLogout = () => {
         logout();
         setIsUserMenuOpen(false);
@@ -43,21 +56,24 @@ export default function Header() {
     };
 
     return (
-        <header className="bg-white shadow-sm sticky top-0 z-50 w-full border-b border-gray-100">
+        <header
+            className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100 ${isScrolled ? 'py-2 shadow-md' : 'py-3'
+                }`}
+        >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center justify-between h-16">
-                    {/* Logo */}
-                    <Link to="/" className="flex items-center gap-3">
+                <div className="flex items-center justify-between h-14">
+                    {/* Logo & Brand */}
+                    <Link to="/" className="flex items-center gap-3 group">
                         <div className="relative">
-                            {/* Updated Logo Icon */}
-                            <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-xl flex items-center justify-center shadow-md transform hover:scale-105 transition-transform duration-200">
-                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                </svg>
-                            </div>
+                            <div className="absolute -inset-1 bg-gradient-to-tr from-fuchsia-500 to-indigo-500 rounded-xl opacity-20 blur group-hover:opacity-40 transition duration-300"></div>
+                            <img
+                                src="/logo.png"
+                                alt="Storiofy Logo"
+                                className="relative w-11 h-11 object-contain transform group-hover:scale-105 transition-transform duration-300"
+                            />
                         </div>
-                        <span className="text-xl font-bold">
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-600">Storiofy</span>
+                        <span className="text-2xl font-extrabold tracking-tight text-vibrant-brand">
+                            Storiofy
                         </span>
                     </Link>
 
@@ -65,56 +81,52 @@ export default function Header() {
                     <nav className="hidden md:flex items-center gap-8">
                         <Link
                             to="/"
-                            className={`text-sm font-semibold transition-colors relative group ${
-                                isActive('/')
-                                    ? 'text-indigo-600'
-                                    : 'text-gray-700 hover:text-indigo-600'
-                            }`}
+                            className={`text-sm font-semibold transition-colors relative group ${isActive('/')
+                                ? 'text-indigo-600'
+                                : 'text-gray-700 hover:text-indigo-600'
+                                }`}
                         >
                             Home
                             {isActive('/') && (
-                                <span className="absolute -bottom-7 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-600 to-blue-600"></span>
+                                <span className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-gradient-to-r from-fuchsia-600 to-indigo-600"></span>
                             )}
                         </Link>
                         <Link
                             to="/books"
-                            className={`text-sm font-semibold transition-colors relative group ${
-                                isActive('/books')
-                                    ? 'text-indigo-600'
-                                    : 'text-gray-700 hover:text-indigo-600'
-                            }`}
+                            className={`text-sm font-semibold transition-colors relative group ${isActive('/books')
+                                ? 'text-indigo-600'
+                                : 'text-gray-700 hover:text-indigo-600'
+                                }`}
                         >
                             Books
                             {isActive('/books') && (
-                                <span className="absolute -bottom-7 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-600 to-blue-600"></span>
+                                <span className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-gradient-to-r from-fuchsia-600 to-indigo-600"></span>
                             )}
                         </Link>
                         {isAuthenticated && (
                             <Link
                                 to="/my-books"
-                                className={`text-sm font-semibold transition-colors relative group ${
-                                    isActive('/my-books')
-                                        ? 'text-indigo-600'
-                                        : 'text-gray-700 hover:text-indigo-600'
-                                }`}
+                                className={`text-sm font-semibold transition-colors relative group ${isActive('/my-books')
+                                    ? 'text-indigo-600'
+                                    : 'text-gray-700 hover:text-indigo-600'
+                                    }`}
                             >
                                 My Books
                                 {isActive('/my-books') && (
-                                    <span className="absolute -bottom-7 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-600 to-blue-600"></span>
+                                    <span className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-gradient-to-r from-fuchsia-600 to-indigo-600"></span>
                                 )}
                             </Link>
                         )}
                         <Link
                             to="/support"
-                            className={`text-sm font-semibold transition-colors relative group ${
-                                isActive('/support')
-                                    ? 'text-indigo-600'
-                                    : 'text-gray-700 hover:text-indigo-600'
-                            }`}
+                            className={`text-sm font-semibold transition-colors relative group ${isActive('/support')
+                                ? 'text-indigo-600'
+                                : 'text-gray-700 hover:text-indigo-600'
+                                }`}
                         >
                             Support
                             {isActive('/support') && (
-                                <span className="absolute -bottom-7 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-600 to-blue-600"></span>
+                                <span className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-gradient-to-r from-fuchsia-600 to-indigo-600"></span>
                             )}
                         </Link>
                     </nav>
@@ -133,9 +145,8 @@ export default function Header() {
                             >
                                 <span>USD</span>
                                 <svg
-                                    className={`w-4 h-4 transition-transform ${
-                                        isCurrencyMenuOpen ? 'transform rotate-180' : ''
-                                    }`}
+                                    className={`w-4 h-4 transition-transform ${isCurrencyMenuOpen ? 'transform rotate-180' : ''
+                                        }`}
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
@@ -376,22 +387,20 @@ export default function Header() {
                         <nav className="flex flex-col gap-2">
                             <Link
                                 to="/"
-                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                                    isActive('/')
-                                        ? 'bg-indigo-50 text-indigo-600'
-                                        : 'text-gray-700 hover:bg-gray-50'
-                                }`}
+                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${isActive('/')
+                                    ? 'bg-indigo-50 text-indigo-600'
+                                    : 'text-gray-700 hover:bg-gray-50'
+                                    }`}
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >
                                 Home
                             </Link>
                             <Link
                                 to="/books"
-                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                                    isActive('/books')
-                                        ? 'bg-indigo-50 text-indigo-600'
-                                        : 'text-gray-700 hover:bg-gray-50'
-                                }`}
+                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${isActive('/books')
+                                    ? 'bg-indigo-50 text-indigo-600'
+                                    : 'text-gray-700 hover:bg-gray-50'
+                                    }`}
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >
                                 Books
@@ -399,11 +408,10 @@ export default function Header() {
                             {isAuthenticated && (
                                 <Link
                                     to="/my-books"
-                                    className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                                        isActive('/my-books')
-                                            ? 'bg-indigo-50 text-indigo-600'
-                                            : 'text-gray-700 hover:bg-gray-50'
-                                    }`}
+                                    className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${isActive('/my-books')
+                                        ? 'bg-indigo-50 text-indigo-600'
+                                        : 'text-gray-700 hover:bg-gray-50'
+                                        }`}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     My Books
@@ -411,11 +419,10 @@ export default function Header() {
                             )}
                             <Link
                                 to="/support"
-                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                                    isActive('/support')
-                                        ? 'bg-indigo-50 text-indigo-600'
-                                        : 'text-gray-700 hover:bg-gray-50'
-                                }`}
+                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${isActive('/support')
+                                    ? 'bg-indigo-50 text-indigo-600'
+                                    : 'text-gray-700 hover:bg-gray-50'
+                                    }`}
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >
                                 Support

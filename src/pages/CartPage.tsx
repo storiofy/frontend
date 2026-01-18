@@ -252,7 +252,7 @@ export default function CartPage() {
                                         >
                                             {item.bookTitle}
                                         </Link>
-                                        
+
                                         {/* Personalization Details Card */}
                                         {item.personalizationId && (
                                             <div className="mt-4 p-4 bg-gradient-to-r from-indigo-50 via-blue-50 to-purple-50 rounded-xl border border-indigo-100 shadow-sm">
@@ -267,14 +267,14 @@ export default function CartPage() {
                                                             />
                                                         </div>
                                                     )}
-                                                    
+
                                                     {/* Personalization Info */}
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center gap-2 mb-2">
                                                             <span className="text-lg">✨</span>
                                                             <span className="text-sm font-bold text-indigo-700 uppercase tracking-wide">Personalized Edition</span>
                                                         </div>
-                                                        
+
                                                         {item.personalizationChildFirstName && (
                                                             <div className="space-y-1">
                                                                 <p className="text-sm text-gray-700">
@@ -289,7 +289,7 @@ export default function CartPage() {
                                                                 )}
                                                             </div>
                                                         )}
-                                                        
+
                                                         {!item.personalizationChildPhotoUrl && (
                                                             <p className="text-xs text-gray-500 mt-1.5 italic flex items-center gap-1">
                                                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -302,7 +302,7 @@ export default function CartPage() {
                                                 </div>
                                             </div>
                                         )}
-                                        
+
                                         <p className="text-sm text-gray-600 mt-3 flex items-center gap-1.5">
                                             <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />

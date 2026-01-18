@@ -128,7 +128,7 @@ function LocateControl({ onLocate, isLocating }: { onLocate: () => void; isLocat
     useEffect(() => {
         // Create custom control
         const LocateButton = L.Control.extend({
-            onAdd: function() {
+            onAdd: function () {
                 const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
                 const button = L.DomUtil.create('a', '', container);
                 button.href = '#';
@@ -136,26 +136,26 @@ function LocateControl({ onLocate, isLocating }: { onLocate: () => void; isLocat
                 button.setAttribute('role', 'button');
                 button.setAttribute('aria-label', 'Use my current location');
                 button.style.cssText = 'display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: white; cursor: pointer; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.3);';
-                
+
                 // Create the crosshair/target icon (like Google Maps)
-                button.innerHTML = isLocating 
+                button.innerHTML = isLocating
                     ? '<svg style="width: 20px; height: 20px; animation: spin 1s linear infinite;" viewBox="0 0 24 24"><style>@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }</style><circle cx="12" cy="12" r="10" stroke="#7c3aed" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"/></svg>'
                     : '<svg style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>';
-                
+
                 // Hover effect
-                button.onmouseenter = () => { 
-                    if (!isLocating) button.style.background = '#f3f4f6'; 
+                button.onmouseenter = () => {
+                    if (!isLocating) button.style.background = '#f3f4f6';
                 };
-                button.onmouseleave = () => { 
-                    button.style.background = 'white'; 
+                button.onmouseleave = () => {
+                    button.style.background = 'white';
                 };
-                
+
                 L.DomEvent.disableClickPropagation(button);
-                L.DomEvent.on(button, 'click', function(e) {
+                L.DomEvent.on(button, 'click', function (e) {
                     L.DomEvent.preventDefault(e);
                     if (!isLocating) onLocate();
                 });
-                
+
                 return container;
             },
         });
@@ -269,22 +269,22 @@ export default function CheckoutPage() {
                 }
             );
             const data = await response.json();
-            
+
             if (data && data.address) {
                 const addr = data.address;
                 setSelectedAddress(data.display_name);
-                
+
                 // Update form fields
-                const streetAddress = [addr.house_number, addr.road].filter(Boolean).join(' ') || 
-                                     addr.suburb || addr.neighbourhood || '';
+                const streetAddress = [addr.house_number, addr.road].filter(Boolean).join(' ') ||
+                    addr.suburb || addr.neighbourhood || '';
                 setValue('addressLine1', streetAddress);
                 setValue('city', addr.city || addr.town || addr.village || addr.county || '');
                 setValue('stateProvince', addr.state || addr.province || '');
                 setValue('postalCode', addr.postcode || '');
-                
+
                 // Map country to our supported countries
                 const countryName = addr.country || '';
-                const matchedCountry = COUNTRIES.find(c => 
+                const matchedCountry = COUNTRIES.find(c =>
                     c.name.toLowerCase() === countryName.toLowerCase() ||
                     addr.country_code?.toUpperCase() === c.code
                 );
@@ -304,7 +304,7 @@ export default function CheckoutPage() {
     // Search for address using Nominatim
     const searchAddress = async () => {
         if (!searchQuery.trim()) return;
-        
+
         setIsSearching(true);
         try {
             const response = await fetch(
@@ -332,19 +332,19 @@ export default function CheckoutPage() {
         setSelectedAddress(result.display_name);
         setSearchResults([]);
         setSearchQuery('');
-        
+
         // Update form fields from result
         if (result.address) {
             const addr = result.address;
-            const streetAddress = [addr.house_number, addr.road].filter(Boolean).join(' ') || 
-                                 addr.suburb || addr.neighbourhood || '';
+            const streetAddress = [addr.house_number, addr.road].filter(Boolean).join(' ') ||
+                addr.suburb || addr.neighbourhood || '';
             setValue('addressLine1', streetAddress);
             setValue('city', addr.city || addr.town || addr.village || addr.county || '');
             setValue('stateProvince', addr.state || addr.province || '');
             setValue('postalCode', addr.postcode || '');
-            
+
             const countryName = addr.country || '';
-            const matchedCountry = COUNTRIES.find(c => 
+            const matchedCountry = COUNTRIES.find(c =>
                 c.name.toLowerCase() === countryName.toLowerCase() ||
                 addr.country_code?.toUpperCase() === c.code
             );
@@ -372,12 +372,12 @@ export default function CheckoutPage() {
             console.error('[CheckoutPage] Checkout failed:', error);
             console.error('[CheckoutPage] Error response:', error.response);
             console.error('[CheckoutPage] Error response data:', error.response?.data);
-            
-            const errorMessage = error.response?.data?.error 
-                || error.response?.data?.message 
-                || error.message 
+
+            const errorMessage = error.response?.data?.error
+                || error.response?.data?.message
+                || error.message
                 || 'Unknown error occurred';
-            
+
             alert(`Checkout failed: ${errorMessage}`);
         },
     });
@@ -413,9 +413,9 @@ export default function CheckoutPage() {
         console.log('[CheckoutPage] onSubmit called with data:', data);
         console.log('[CheckoutPage] Form isValid:', isValid);
         console.log('[CheckoutPage] Form errors:', errors);
-        
+
         const fullPhone = `${data.phoneCountryCode}${data.phone.replace(/^0+/, '')}`;
-        
+
         const request: CheckoutRequest = {
             email: data.email,
             phone: fullPhone,
@@ -499,12 +499,12 @@ export default function CheckoutPage() {
         );
     }
 
-    const mapCenter: [number, number] = mapCoordinates 
-        ? [mapCoordinates.lat, mapCoordinates.lng] 
+    const mapCenter: [number, number] = mapCoordinates
+        ? [mapCoordinates.lat, mapCoordinates.lng]
         : defaultCenter;
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
+        <div className="min-h-screen bg-gray-50 py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Header */}
                 <div className="mb-8">
@@ -647,7 +647,7 @@ export default function CheckoutPage() {
                                                 {isSearching ? 'Searching...' : 'Search'}
                                             </button>
                                         </div>
-                                        
+
                                         {/* Search Results */}
                                         {searchResults.length > 0 && (
                                             <div className="mt-2 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
@@ -664,9 +664,9 @@ export default function CheckoutPage() {
                                             </div>
                                         )}
                                     </div>
-                                    
+
                                     {/* Map Container */}
-                                    <div className="h-72 w-full relative">
+                                    <div className="h-60 w-full relative">
                                         <MapContainer
                                             center={mapCenter}
                                             zoom={15}
@@ -690,7 +690,7 @@ export default function CheckoutPage() {
                                             )}
                                         </MapContainer>
                                     </div>
-                                    
+
                                     <div className="p-3 bg-gray-50 border-t border-gray-200">
                                         <p className="text-sm text-gray-600">
                                             📍 Click on the map or drag the marker to select your delivery location
@@ -938,11 +938,10 @@ export default function CheckoutPage() {
                                             {activeDeliveryTypes.map((deliveryType) => (
                                                 <label
                                                     key={deliveryType.id}
-                                                    className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-all ${
-                                                        deliveryTypeId === deliveryType.id
-                                                            ? 'border-indigo-500 bg-indigo-50'
-                                                            : 'border-gray-200 hover:border-indigo-300'
-                                                    }`}
+                                                    className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-all ${deliveryTypeId === deliveryType.id
+                                                        ? 'border-indigo-500 bg-indigo-50'
+                                                        : 'border-gray-200 hover:border-indigo-300'
+                                                        }`}
                                                     onClick={() => {
                                                         setValue('deliveryTypeId', deliveryType.id);
                                                     }}
@@ -1025,7 +1024,7 @@ export default function CheckoutPage() {
                             <div className="bg-white rounded-xl shadow-sm p-6 sticky top-4">
                                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Order Summary</h2>
                                 <p className="text-sm text-gray-500 mb-4">{cart.items.length} item{cart.items.length > 1 ? 's' : ''} in your order</p>
-                                
+
                                 {/* Cart Items */}
                                 <div className="space-y-4 mb-6 max-h-96 overflow-y-auto pr-1">
                                     {cart.items.map((item) => (
@@ -1049,7 +1048,7 @@ export default function CheckoutPage() {
                                                     <p className="font-semibold text-gray-900 text-sm mt-1">${item.totalPrice.toFixed(2)}</p>
                                                 </div>
                                             </div>
-                                            
+
                                             {/* Personalization Details */}
                                             {item.personalizationId && (
                                                 <div className="mt-2 pt-2 border-t border-gray-200">
@@ -1134,7 +1133,7 @@ export default function CheckoutPage() {
                                 {/* Secure checkout badges */}
                                 <div className="mt-6 flex items-center justify-center gap-4 text-gray-400">
                                     <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z" />
                                     </svg>
                                     <span className="text-sm">Secure Checkout</span>
                                 </div>

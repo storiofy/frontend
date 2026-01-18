@@ -38,14 +38,15 @@ interface ChildInfoFormProps {
         isAvailable: boolean;
     }>;
     onSubmit: (data: ChildInfoFormData) => void;
+    onChange?: (data: Partial<ChildInfoFormData>) => void;
     onNext?: () => void;
 }
 
 export default function ChildInfoForm({
     personalizationId,
     initialData,
-    availableLanguages = [],
     onSubmit,
+    onChange,
     onNext,
 }: ChildInfoFormProps) {
     const [_photoFile, setPhotoFile] = useState<File | null>(null);
@@ -67,8 +68,8 @@ export default function ChildInfoForm({
         resolver: zodResolver(childInfoSchema),
         defaultValues: {
             childFirstName: initialData?.childFirstName || '',
-            childAge: initialData?.childAge || undefined,
-            languageCode: initialData?.languageCode || 'en',
+            childAge: initialData?.childAge || 5,
+            languageCode: 'en',
             childPhotoUrl: initialData?.childPhotoUrl || '',
             gender: initialData?.gender || undefined,
         },
@@ -76,26 +77,44 @@ export default function ChildInfoForm({
     });
 
     const childFirstName = watch('childFirstName');
+    const childAge = watch('childAge');
     const childPhotoUrl = watch('childPhotoUrl');
+    const selectedGender = watch('gender');
 
-    // Reset form when initialData changes (e.g., when navigating back)
+    // Notify parent of changes for real-time preview
+    useEffect(() => {
+        if (onChange) {
+            onChange({
+                childFirstName,
+                childAge,
+                childPhotoUrl,
+                gender: selectedGender,
+                languageCode: 'en'
+            });
+        }
+    }, [childFirstName, childAge, childPhotoUrl, selectedGender, onChange]);
+
+    // Reset form only when personalizationId changes or when initialData is first loaded
+    // This prevents the loop when parent's formData (synced via onChange) comes back as initialData
     useEffect(() => {
         if (initialData) {
-            reset({
-                childFirstName: initialData.childFirstName || '',
-                childAge: initialData.childAge || undefined,
-                languageCode: initialData.languageCode || 'en',
-                childPhotoUrl: initialData.childPhotoUrl || '',
-                gender: initialData.gender || undefined,
-            });
-            // Also update photo preview
+            // We only want to reset the form if it's the first time we're getting data
+            // or if the underlying personalization record has changed.
+            // If we're just updating fields, the form's internal state is fine.
+            reset(prev => ({
+                ...prev,
+                childFirstName: initialData.childFirstName ?? prev.childFirstName,
+                childAge: initialData.childAge ?? prev.childAge,
+                childPhotoUrl: initialData.childPhotoUrl ?? prev.childPhotoUrl,
+                gender: initialData.gender ?? prev.gender,
+            }), { keepDefaultValues: true });
+
             if (initialData.childPhotoUrl) {
                 setPhotoPreview(initialData.childPhotoUrl);
             }
         }
-    }, [initialData, reset]);
+    }, [personalizationId, reset]); // Removed initialData from dependencies to stop the loop
 
-    // Update form validity when photo changes
     useEffect(() => {
         if (photoPreview) {
             setValue('childPhotoUrl', photoPreview, { shouldValidate: true });
@@ -109,11 +128,7 @@ export default function ChildInfoForm({
         setUploadProgress(0);
 
         if (file) {
-            // If personalizationId is 'temp' (guest user), store photo locally
             if (personalizationId === 'temp') {
-                // Store file in state - will be uploaded when personalization is created
-                setPhotoPreview(preview);
-                // Create a data URL for preview
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     const dataUrl = reader.result as string;
@@ -123,25 +138,16 @@ export default function ChildInfoForm({
                 return;
             }
 
-            // For authenticated users with personalization, upload immediately
             setIsUploadingPhoto(true);
             try {
-                // Simulate upload progress (in production, this would come from axios upload progress)
                 const progressInterval = setInterval(() => {
-                    setUploadProgress((prev) => {
-                        if (prev >= 90) {
-                            clearInterval(progressInterval);
-                            return prev;
-                        }
-                        return prev + 10;
-                    });
+                    setUploadProgress((prev) => (prev >= 90 ? prev : prev + 10));
                 }, 200);
 
                 const result = await uploadPersonalizationPhoto(personalizationId, file);
                 clearInterval(progressInterval);
                 setUploadProgress(100);
 
-                // Small delay to show 100% before hiding progress
                 setTimeout(() => {
                     setPhotoPreview(result.photoUrl);
                     setValue('childPhotoUrl', result.photoUrl, { shouldValidate: true });
@@ -150,8 +156,6 @@ export default function ChildInfoForm({
                 }, 500);
             } catch (error: any) {
                 setPhotoError(error.response?.data?.error || 'Failed to upload photo');
-                setPhotoFile(null);
-                setPhotoPreview(null);
                 setIsUploadingPhoto(false);
                 setUploadProgress(0);
             }
@@ -167,180 +171,137 @@ export default function ChildInfoForm({
     };
 
     const onFormSubmit = async (data: ChildInfoFormData) => {
-        console.log('📝 ChildInfoForm submitting with data:', data);
-        console.log('   personalizationId:', personalizationId);
-
-        // Don't call update API here - the parent component (PersonalizationPage)
-        // will create a NEW personalization when handleChildInfoSubmit is called
-        // This ensures each personalization is unique
-        console.log('📤 Passing data to parent for NEW personalization creation');
         onSubmit(data);
-        if (onNext) {
-            onNext();
-        }
+        if (onNext) onNext();
     };
 
     const isFormValid = isValid && childPhotoUrl && !isUploadingPhoto;
 
     return (
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Child Information</h2>
+            <div className="bg-white/40 backdrop-blur-md rounded-3xl p-4 sm:p-6 shadow-xl border border-white/40">
+                <div className="space-y-6">
+                    {/* Header Section */}
+                    <div className="border-b border-gray-100 pb-4">
+                        <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">
+                            Personalize <span className="text-vibrant-brand">Your Story</span>
+                        </h2>
+                        <p className="text-sm text-gray-500 mt-1">Let's make your child the hero of the adventure!</p>
+                    </div>
 
-            {/* Photo Upload Section */}
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Child's Photo <span className="text-red-500">*</span>
-                </label>
-                <PhotoUpload
-                    photoUrl={photoPreview || undefined}
-                    onPhotoChange={handlePhotoChange}
-                    onPhotoUrlChange={handlePhotoUrlChange}
-                    error={photoError || errors.childPhotoUrl?.message}
-                    uploadProgress={uploadProgress}
-                    isUploading={isUploadingPhoto}
-                />
-            </div>
+                    {/* Child's First Name */}
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-700 uppercase tracking-wider flex justify-between">
+                            <span>Child's First Name</span>
+                            <span className="text-xs font-medium lowercase text-gray-400">{childFirstName?.length || 0}/25</span>
+                        </label>
+                        <input
+                            {...register('childFirstName')}
+                            type="text"
+                            maxLength={25}
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none text-base font-medium"
+                            placeholder="e.g. Charlie"
+                        />
+                        {errors.childFirstName && <p className="text-xs text-red-600 font-medium px-2">{errors.childFirstName.message}</p>}
+                    </div>
 
-            {/* Language Selection */}
-            <div>
-                <label
-                    htmlFor="language"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                    Language <span className="text-red-500">*</span>
-                </label>
-                <select
-                    {...register('languageCode')}
-                    id="language"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                >
-                    {availableLanguages.length > 0 ? (
-                        availableLanguages.map((lang) => (
-                            <option
-                                key={lang.languageCode}
-                                value={lang.languageCode}
-                                disabled={!lang.isAvailable}
-                            >
-                                {lang.titleTranslated || lang.languageCode.toUpperCase()}
-                                {!lang.isAvailable && ' (Coming Soon)'}
-                            </option>
-                        ))
-                    ) : (
-                        <>
-                            <option value="en">English</option>
-                            <option value="es">Spanish</option>
-                            <option value="fr">French</option>
-                            <option value="de">German</option>
-                        </>
-                    )}
-                </select>
-                {errors.languageCode && (
-                    <p className="mt-1 text-sm text-red-600">
-                        {errors.languageCode.message}
-                    </p>
-                )}
-            </div>
+                    {/* Gender Selection - Custom Buttons */}
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Gender Identity</label>
+                        <div className="grid grid-cols-3 gap-3">
+                            {[
+                                { id: 'male', label: 'Boy', icon: '👦' },
+                                { id: 'female', label: 'Girl', icon: '👧' },
+                                { id: 'other', label: 'Both/Neutral', icon: '🧒' }
+                            ].map((option) => (
+                                <button
+                                    key={option.id}
+                                    type="button"
+                                    onClick={() => setValue('gender', option.id as any, { shouldValidate: true })}
+                                    className={`relative flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-300 ${selectedGender === option.id
+                                        ? 'bg-indigo-50 border-indigo-600 shadow-md ring-4 ring-indigo-500/10 scale-105'
+                                        : 'bg-white border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/30'
+                                        }`}
+                                >
+                                    <span className="text-xl">{option.icon}</span>
+                                    <span className={`text-xs font-bold ${selectedGender === option.id ? 'text-indigo-600' : 'text-gray-500'}`}>
+                                        {option.label}
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
+                        {errors.gender && <p className="text-xs text-red-600 font-medium px-2">{errors.gender.message}</p>}
+                    </div>
 
-            {/* Child's First Name */}
-            <div>
-                <label
-                    htmlFor="childFirstName"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                    Child's First Name <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                    <input
-                        {...register('childFirstName')}
-                        type="text"
-                        id="childFirstName"
-                        maxLength={25}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        placeholder="Enter child's first name"
-                    />
-                    <div className="absolute right-3 top-2 text-xs text-gray-500">
-                        {childFirstName?.length || 0}/25
+                    {/* Age Section - Slider + Input */}
+                    <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                            <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Child's Age</label>
+                            <div className="flex items-center gap-2 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
+                                <input
+                                    type="number"
+                                    value={childAge}
+                                    onChange={(e) => setValue('childAge', Math.min(18, Math.max(0, parseInt(e.target.value) || 0)), { shouldValidate: true })}
+                                    className="w-10 bg-transparent text-center font-extrabold text-indigo-600 outline-none text-base"
+                                />
+                                <span className="text-[10px] font-bold text-indigo-400 uppercase">Years</span>
+                            </div>
+                        </div>
+                        <div className="px-1">
+                            <input
+                                type="range"
+                                min="0"
+                                max="18"
+                                step="1"
+                                value={childAge || 0}
+                                onChange={(e) => setValue('childAge', parseInt(e.target.value), { shouldValidate: true })}
+                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600 focus:outline-none"
+                            />
+                        </div>
+                        {errors.childAge && <p className="text-xs text-red-600 font-medium px-2">{errors.childAge.message}</p>}
+                    </div>
+
+                    {/* Photo Upload Section - Now at the bottom */}
+                    <div className="space-y-2 pt-2">
+                        <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                            Upload Photo <span className="text-[10px] font-normal text-gray-400 ml-1">(to appear in the book)</span>
+                        </label>
+                        <PhotoUpload
+                            photoUrl={photoPreview || undefined}
+                            onPhotoChange={handlePhotoChange}
+                            onPhotoUrlChange={handlePhotoUrlChange}
+                            error={photoError || errors.childPhotoUrl?.message}
+                            uploadProgress={uploadProgress}
+                            isUploading={isUploadingPhoto}
+                        />
+                    </div>
+
+                    {/* Submit Section */}
+                    <div className="pt-4 border-t border-gray-100">
+                        <button
+                            type="submit"
+                            disabled={!isFormValid || isUploadingPhoto}
+                            className={`w-full py-4 rounded-xl font-extrabold text-lg shadow-lg transition-all duration-300 transform active:scale-95 flex items-center justify-center gap-2 ${isFormValid && !isUploadingPhoto
+                                ? 'bg-gradient-to-r from-fuchsia-600 to-indigo-600 text-white hover:shadow-indigo-500/25 hover:-translate-y-0.5'
+                                : 'bg-gray-100 text-gray-400 cursor-not-allowed grayscale'
+                                }`}
+                        >
+                            {isUploadingPhoto ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-indigo-600 border-t-white" />
+                                    <span>Uploading...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span>Preview Your Magic Book</span>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    </svg>
+                                </>
+                            )}
+                        </button>
                     </div>
                 </div>
-                {errors.childFirstName && (
-                    <p className="mt-1 text-sm text-red-600">
-                        {errors.childFirstName.message}
-                    </p>
-                )}
-            </div>
-
-            {/* Child's Age */}
-            <div>
-                <label
-                    htmlFor="childAge"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                    Child's Age <span className="text-red-500">*</span>
-                </label>
-                <input
-                    {...register('childAge', { valueAsNumber: true })}
-                    type="number"
-                    id="childAge"
-                    min="0"
-                    max="18"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                    placeholder="Enter child's age"
-                />
-                {errors.childAge && (
-                    <p className="mt-1 text-sm text-red-600">
-                        {errors.childAge.message}
-                    </p>
-                )}
-                <p className="mt-1 text-sm text-gray-500">
-                    Age must be between 0 and 18 years
-                </p>
-            </div>
-
-            {/* Gender Selection */}
-            <div>
-                <label
-                    htmlFor="gender"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                    Gender <span className="text-red-500">*</span>
-                </label>
-                <select
-                    {...register('gender')}
-                    id="gender"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                >
-                    <option value="">Select gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                </select>
-                {errors.gender && (
-                    <p className="mt-1 text-sm text-red-600">
-                        {errors.gender.message}
-                    </p>
-                )}
-            </div>
-
-            {/* Preview Book Button */}
-            <div className="pt-4 border-t border-gray-200">
-                <button
-                    type="submit"
-                    disabled={!isFormValid || isUploadingPhoto}
-                    className={`
-                        w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3 px-6 rounded-xl font-bold text-center
-                        transition-all duration-200
-                        ${isFormValid && !isUploadingPhoto
-                            ? 'hover:from-indigo-700 hover:to-blue-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
-                            : 'opacity-50 cursor-not-allowed'
-                        }
-                    `}
-                >
-                    {isUploadingPhoto
-                        ? 'Uploading Photo...'
-                        : isFormValid
-                            ? 'Preview Book'
-                            : 'Please complete all fields'}
-                </button>
             </div>
         </form>
     );
