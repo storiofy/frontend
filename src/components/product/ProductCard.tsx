@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import { useCurrencyStore } from '@store/currencyStore';
+import { getCurrencySymbol } from '@lib/utils/currency';
 
 interface ProductCardProps {
     id: string;
@@ -29,6 +31,8 @@ export default function ProductCard({
     isNew = false,
     productType: _productType = 'book',
 }: ProductCardProps) {
+    const { currency } = useCurrencyStore();
+
     return (
         <div className="group bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden flex flex-col border border-gray-100 hover:border-indigo-200">
             {/* Image Container */}
@@ -120,15 +124,15 @@ export default function ProductCard({
                         {discountPercentage && discountPercentage > 0 ? (
                             <div className="flex items-baseline gap-2">
                                 <span className="text-2xl font-bold text-indigo-600">
-                                    ${finalPrice.toFixed(2)}
+                                    {getCurrencySymbol(currency)}{finalPrice.toFixed(2)}
                                 </span>
                                 <span className="text-sm text-gray-400 line-through">
-                                    ${basePrice.toFixed(2)}
+                                    {getCurrencySymbol(currency)}{basePrice.toFixed(2)}
                                 </span>
                             </div>
                         ) : (
                             <span className="text-2xl font-bold text-gray-900">
-                                ${basePrice.toFixed(2)}
+                                {getCurrencySymbol(currency)}{basePrice.toFixed(2)}
                             </span>
                         )}
                     </div>

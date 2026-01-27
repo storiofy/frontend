@@ -10,6 +10,8 @@ import 'leaflet/dist/leaflet.css';
 import { getCart, type CartResponse } from '@lib/api/cart';
 import { processCheckout, getShippingOptions, getDeliveryTypes, type CheckoutRequest, type ShippingOptions, type DeliveryType } from '@lib/api/checkout';
 import { useAuthStore } from '@store/authStore';
+import { useCurrencyStore } from '@store/currencyStore';
+import { getCurrencySymbol } from '@lib/utils/currency';
 
 // Fix Leaflet default marker icon issue
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -175,6 +177,7 @@ export default function CheckoutPage() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { user } = useAuthStore();
+    const { currency } = useCurrencyStore();
     const [mapCoordinates, setMapCoordinates] = useState<{ lat: number; lng: number } | null>(null);
     const [isLocating, setIsLocating] = useState(false);
     const [selectedAddress, setSelectedAddress] = useState<string>('');
@@ -187,14 +190,14 @@ export default function CheckoutPage() {
 
     // Fetch cart data
     const { data: cart, isLoading: cartLoading, error: cartError } = useQuery<CartResponse>({
-        queryKey: ['cart'],
-        queryFn: getCart,
+        queryKey: ['cart', currency],
+        queryFn: () => getCart(currency),
     });
 
     // Fetch delivery types
     const { data: deliveryTypes, isLoading: deliveryTypesLoading } = useQuery<DeliveryType[]>({
-        queryKey: ['delivery-types'],
-        queryFn: getDeliveryTypes,
+        queryKey: ['delivery-types', currency],
+        queryFn: () => getDeliveryTypes(currency),
     });
 
     // Filter active delivery types
@@ -202,8 +205,8 @@ export default function CheckoutPage() {
 
     // Fetch shipping options (for free shipping threshold and tax rate)
     const { data: shippingOptions } = useQuery<ShippingOptions>({
-        queryKey: ['shipping-options'],
-        queryFn: () => getShippingOptions('TH'),
+        queryKey: ['shipping-options', currency],
+        queryFn: () => getShippingOptions('TH', currency),
     });
 
     // Form setup
@@ -245,7 +248,10 @@ export default function CheckoutPage() {
     const subtotal = cart?.totals.subtotal || 0;
     const selectedDeliveryType = activeDeliveryTypes.find(dt => dt.id === deliveryTypeId);
     const shippingCost = selectedDeliveryType?.price || 0;
-    const taxRate = shippingOptions?.taxRate || 0.10;
+
+    // Use the tax rate from shipping options, or default to 0.07 (standard Thai VAT)
+    // Note: In a production app, the backend should ideally calculate this 
+    const taxRate = shippingOptions?.taxRate !== undefined ? shippingOptions.taxRate : 0.07;
     const tax = subtotal * taxRate;
     const total = subtotal + shippingCost + tax;
 
@@ -459,7 +465,7 @@ export default function CheckoutPage() {
             sameAsShipping: data.sameAsShipping,
             deliveryTypeId: data.deliveryTypeId,
             paymentMethod: 'cod',
-            currencyCode: 'USD',
+            currencyCode: currency,
             notes: data.notes,
             latitude: mapCoordinates?.lat,
             longitude: mapCoordinates?.lng,
@@ -966,7 +972,7 @@ export default function CheckoutPage() {
                                                         </div>
                                                     </div>
                                                     <div className="text-right">
-                                                        <span className="font-medium text-gray-900">${deliveryType.price.toFixed(2)}</span>
+                                                        <span className="font-medium text-gray-900">{getCurrencySymbol(currency)}{deliveryType.price.toFixed(2)}</span>
                                                     </div>
                                                 </label>
                                             ))}
@@ -1040,12 +1046,12 @@ export default function CheckoutPage() {
                                                         {item.bookTitle}
                                                     </p>
                                                     <p className="text-xs text-gray-500 mt-0.5">
-                                                        Qty: {item.quantity} × ${item.unitPrice.toFixed(2)}
+                                                        Qty: {item.quantity} × {getCurrencySymbol(currency)}{item.unitPrice.toFixed(2)}
                                                     </p>
                                                     <p className="text-xs text-gray-500">
                                                         Language: {item.languageCode.toUpperCase()}
                                                     </p>
-                                                    <p className="font-semibold text-gray-900 text-sm mt-1">${item.totalPrice.toFixed(2)}</p>
+                                                    <p className="font-semibold text-gray-900 text-sm mt-1">{getCurrencySymbol(currency)}{item.totalPrice.toFixed(2)}</p>
                                                 </div>
                                             </div>
 
@@ -1083,24 +1089,24 @@ export default function CheckoutPage() {
                                 <div className="border-t border-gray-200 pt-4 space-y-3">
                                     <div className="flex justify-between text-gray-600">
                                         <span>Subtotal</span>
-                                        <span>${subtotal.toFixed(2)}</span>
+                                        <span>{getCurrencySymbol(currency)}{subtotal.toFixed(2)}</span>
                                     </div>
                                     <div className="flex justify-between text-gray-600">
                                         <span>Shipping</span>
                                         {shippingCost === 0 ? (
                                             <span className="text-green-600 font-medium">FREE</span>
                                         ) : (
-                                            <span>${shippingCost.toFixed(2)}</span>
+                                            <span>{getCurrencySymbol(currency)}{shippingCost.toFixed(2)}</span>
                                         )}
                                     </div>
                                     <div className="flex justify-between text-gray-600">
                                         <span>Tax (10%)</span>
-                                        <span>${tax.toFixed(2)}</span>
+                                        <span>{getCurrencySymbol(currency)}{tax.toFixed(2)}</span>
                                     </div>
                                     <div className="border-t border-gray-200 pt-3">
                                         <div className="flex justify-between text-lg font-bold text-gray-900">
                                             <span>Total</span>
-                                            <span>${total.toFixed(2)}</span>
+                                            <span>{getCurrencySymbol(currency)}{total.toFixed(2)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -1119,7 +1125,7 @@ export default function CheckoutPage() {
                                             Processing...
                                         </span>
                                     ) : (
-                                        `Place Order • $${total.toFixed(2)}`
+                                        `Place Order • ${getCurrencySymbol(currency)}${total.toFixed(2)}`
                                     )}
                                 </button>
 

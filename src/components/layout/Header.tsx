@@ -2,6 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@store/authStore';
 import { useCartStore } from '@store/cartStore';
+import { useCurrencyStore } from '@store/currencyStore';
+import { SUPPORTED_CURRENCIES } from '@lib/utils/currency';
+import type { CurrencyCode } from '@lib/utils/currency';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function Header() {
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -10,9 +14,11 @@ export default function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
     const { user, isAuthenticated, logout } = useAuthStore();
     const items = useCartStore((state) => state.items);
+    const { currency, setCurrency } = useCurrencyStore();
     const itemCount = items.reduce((total, item) => total + item.quantity, 0);
     const navigate = useNavigate();
     const location = useLocation();
+    const queryClient = useQueryClient();
     const userMenuRef = useRef<HTMLDivElement>(null);
     const currencyMenuRef = useRef<HTMLDivElement>(null);
 
@@ -143,7 +149,7 @@ export default function Header() {
                                 className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50 rounded-lg transition-colors"
                                 aria-label="Currency selector"
                             >
-                                <span>USD</span>
+                                <span>{currency}</span>
                                 <svg
                                     className={`w-4 h-4 transition-transform ${isCurrencyMenuOpen ? 'transform rotate-180' : ''
                                         }`}
@@ -166,24 +172,28 @@ export default function Header() {
                                     <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
                                         Currency
                                     </div>
-                                    <button
-                                        onClick={() => setIsCurrencyMenuOpen(false)}
-                                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
-                                    >
-                                        USD - US Dollar
-                                    </button>
-                                    <button
-                                        onClick={() => setIsCurrencyMenuOpen(false)}
-                                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
-                                    >
-                                        EUR - Euro
-                                    </button>
-                                    <button
-                                        onClick={() => setIsCurrencyMenuOpen(false)}
-                                        className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition-colors"
-                                    >
-                                        GBP - British Pound
-                                    </button>
+                                    {(Object.keys(SUPPORTED_CURRENCIES) as CurrencyCode[]).map((code) => (
+                                        <button
+                                            key={code}
+                                            onClick={() => {
+                                                setCurrency(code);
+                                                setIsCurrencyMenuOpen(false);
+                                                // Invalidate books and book queries to refetch with new currency
+                                                queryClient.invalidateQueries({ queryKey: ['books'] });
+                                                queryClient.invalidateQueries({ queryKey: ['book'] });
+                                                queryClient.invalidateQueries({ queryKey: ['newReleases'] });
+                                                queryClient.invalidateQueries({ queryKey: ['bestsellers'] });
+                                                queryClient.invalidateQueries({ queryKey: ['cart'] });
+                                                queryClient.invalidateQueries({ queryKey: ['shipping-options'] });
+                                            }}
+                                            className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${currency === code
+                                                ? 'bg-indigo-50 text-indigo-600 font-semibold'
+                                                : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600'
+                                                }`}
+                                        >
+                                            {code} - {SUPPORTED_CURRENCIES[code].name}
+                                        </button>
+                                    ))}
                                 </div>
                             )}
                         </div>

@@ -31,6 +31,22 @@ apiClient.interceptors.request.use(
         const sessionId = getSessionId();
         config.headers['X-Session-Id'] = sessionId;
 
+        // Add global currency if not explicitly set in params
+        try {
+            const currencySettings = localStorage.getItem('Storiofy_currency_settings');
+            if (currencySettings) {
+                const { state } = JSON.parse(currencySettings);
+                if (state?.currency) {
+                    config.params = {
+                        ...config.params,
+                        currency: state.currency
+                    };
+                }
+            }
+        } catch (e) {
+            console.error('Error reading currency from localStorage', e);
+        }
+
         return config;
     },
     error => {

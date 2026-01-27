@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
+import { useCurrencyStore } from '@store/currencyStore';
+import { getCurrencySymbol } from '@lib/utils/currency';
 import {
     getCart,
     removeCartItem,
@@ -11,6 +13,7 @@ import {
 export default function CartPage() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const { currency } = useCurrencyStore();
     const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
 
     // Fetch cart data
@@ -19,9 +22,9 @@ export default function CartPage() {
         isLoading,
         error,
     } = useQuery({
-        queryKey: ['cart'],
+        queryKey: ['cart', currency],
         queryFn: async () => {
-            const cartData = await getCart();
+            const cartData = await getCart(currency);
             // Debug logging - check personalization data
             console.log('Cart data received:', cartData);
             cartData.items.forEach((item, index) => {
@@ -358,11 +361,11 @@ export default function CartPage() {
                                         {/* Price */}
                                         <div className="text-right">
                                             <p className="text-2xl font-bold text-gray-900">
-                                                ${item.totalPrice.toFixed(2)}
+                                                {getCurrencySymbol(currency)}{item.totalPrice.toFixed(2)}
                                             </p>
                                             {item.discountAmount > 0 && (
                                                 <p className="text-sm text-gray-500 line-through">
-                                                    ${(item.totalPrice + item.discountAmount).toFixed(2)}
+                                                    {getCurrencySymbol(currency)}{(item.totalPrice + item.discountAmount).toFixed(2)}
                                                 </p>
                                             )}
                                         </div>
@@ -410,13 +413,13 @@ export default function CartPage() {
                             <div className="space-y-4 mb-6">
                                 <div className="flex justify-between text-gray-700">
                                     <span className="font-medium">Subtotal</span>
-                                    <span className="font-semibold">${cart.totals.subtotal.toFixed(2)}</span>
+                                    <span className="font-semibold">{getCurrencySymbol(currency)}{cart.totals.subtotal.toFixed(2)}</span>
                                 </div>
 
                                 {cart.totals.discount > 0 && (
                                     <div className="flex justify-between text-green-600 bg-green-50 px-3 py-2 rounded-lg">
                                         <span className="font-medium">Discount</span>
-                                        <span className="font-bold">-${cart.totals.discount.toFixed(2)}</span>
+                                        <span className="font-bold">-{getCurrencySymbol(currency)}{cart.totals.discount.toFixed(2)}</span>
                                     </div>
                                 )}
 
@@ -431,20 +434,20 @@ export default function CartPage() {
                                                 Free
                                             </span>
                                         ) : (
-                                            `$${cart.totals.shipping.toFixed(2)}`
+                                            `${getCurrencySymbol(currency)}${cart.totals.shipping.toFixed(2)}`
                                         )}
                                     </span>
                                 </div>
 
                                 <div className="flex justify-between text-gray-700">
                                     <span className="font-medium">Tax</span>
-                                    <span className="font-semibold">${cart.totals.tax.toFixed(2)}</span>
+                                    <span className="font-semibold">{getCurrencySymbol(currency)}{cart.totals.tax.toFixed(2)}</span>
                                 </div>
 
                                 <div className="border-t-2 border-gray-200 pt-4">
                                     <div className="flex justify-between items-center">
                                         <span className="text-lg font-bold text-gray-900">Total</span>
-                                        <span className="text-3xl font-bold text-indigo-600">${cart.totals.total.toFixed(2)}</span>
+                                        <span className="text-3xl font-bold text-indigo-600">{getCurrencySymbol(currency)}{cart.totals.total.toFixed(2)}</span>
                                     </div>
                                 </div>
                             </div>

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useCurrencyStore } from '@store/currencyStore';
+import { getCurrencySymbol } from '@lib/utils/currency';
 
 interface BookDetailsProps {
     slug: string;
@@ -51,6 +53,7 @@ export default function BookDetails({
     rating = 4.8,
     reviewCount = 0,
 }: BookDetailsProps) {
+    const { currency } = useCurrencyStore();
     const [selectedLanguage, setSelectedLanguage] = useState(languageCode);
     const [isHelpOpen, setIsHelpOpen] = useState(false);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -111,20 +114,20 @@ export default function BookDetails({
                 {discountPercentage && discountPercentage > 0 ? (
                     <>
                         <span className="text-4xl font-bold text-indigo-600">
-                            ${finalPrice.toFixed(2)}
+                            {getCurrencySymbol(currency)}{finalPrice.toFixed(2)}
                         </span>
                         <span className="text-xl text-gray-400 line-through">
-                            ${basePrice.toFixed(2)}
+                            {getCurrencySymbol(currency)}{basePrice.toFixed(2)}
                         </span>
                         {discountPercentage > 0 && (
                             <span className="px-3 py-1.5 bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 text-sm font-bold rounded-lg border border-green-200">
-                                Save ${(basePrice - finalPrice).toFixed(2)}
+                                Save {getCurrencySymbol(currency)}{(basePrice - finalPrice).toFixed(2)}
                             </span>
                         )}
                     </>
                 ) : (
                     <span className="text-4xl font-bold text-indigo-600">
-                        ${basePrice.toFixed(2)}
+                        {getCurrencySymbol(currency)}{basePrice.toFixed(2)}
                     </span>
                 )}
             </div>
