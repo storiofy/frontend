@@ -20,6 +20,7 @@ import ProfilePage from '@pages/ProfilePage';
 // Layout Components
 import Header from '@components/layout/Header';
 import Footer from '@components/layout/Footer';
+import ScrollToTop from '@components/common/ScrollToTop';
 
 // Store
 import { useAuthStore } from '@store/authStore';
@@ -45,6 +46,7 @@ function AppContent() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-grow">

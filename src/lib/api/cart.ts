@@ -51,11 +51,14 @@ export interface CartCountResponse {
 /**
  * Get cart items and totals
  */
-export async function getCart(): Promise<CartResponse> {
+export async function getCart(currency?: string): Promise<CartResponse> {
     const sessionId = getSessionId();
     const response = await apiClient.get<CartResponse>('/cart', {
         headers: {
             'X-Session-Id': sessionId,
+        },
+        params: {
+            currency,
         },
     });
     return response.data;

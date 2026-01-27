@@ -92,21 +92,21 @@ export default function BestsellersSection() {
     const books = data?.items || [];
 
     return (
-        <section className="py-16 bg-white">
+        <section className="py-8 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
-                <div className="text-center mb-12">
-                    <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+                <div className="text-center mb-8">
+                    <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
                         BESTSELLERS
                     </h2>
-                    <p className="text-lg text-gray-600">
+                    <p className="text-base text-gray-600">
                         Personalise a bestseller
                     </p>
                 </div>
 
                 {/* Product Grid */}
                 {books.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
                         {books.map((book) => (
                             <ProductCard
                                 key={book.id}
@@ -124,7 +124,7 @@ export default function BestsellersSection() {
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-12">
+                    <div className="text-center py-8">
                         <p className="text-gray-600">
                             No bestseller books available at the moment.
                         </p>
@@ -136,7 +136,7 @@ export default function BestsellersSection() {
                     <div className="text-center">
                         <Link
                             to="/books?featured=bestseller"
-                            className="inline-block bg-indigo-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors"
+                            className="inline-block bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition-colors text-sm"
                         >
                             View All
                         </Link>

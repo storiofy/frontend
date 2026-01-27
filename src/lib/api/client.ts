@@ -25,12 +25,28 @@ apiClient.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
-        
+
         // Always include session ID (for both guest and authenticated users)
         // Backend will use userId if authenticated, otherwise sessionId
         const sessionId = getSessionId();
         config.headers['X-Session-Id'] = sessionId;
-        
+
+        // Add global currency if not explicitly set in params
+        try {
+            const currencySettings = localStorage.getItem('Storiofy_currency_settings');
+            if (currencySettings) {
+                const { state } = JSON.parse(currencySettings);
+                if (state?.currency) {
+                    config.params = {
+                        ...config.params,
+                        currency: state.currency
+                    };
+                }
+            }
+        } catch (e) {
+            console.error('Error reading currency from localStorage', e);
+        }
+
         return config;
     },
     error => {
@@ -50,12 +66,12 @@ apiClient.interceptors.response.use(
 
             try {
                 const refreshToken = localStorage.getItem('refreshToken');
-                
+
                 // If no refresh token, this is a guest user - don't redirect to login
                 if (!refreshToken) {
                     return Promise.reject(error);
                 }
-                
+
                 const response = await axios.post(
                     `${import.meta.env.VITE_API_URL}/auth/refresh`,
                     { refreshToken }
@@ -71,7 +87,7 @@ apiClient.interceptors.response.use(
                 const hadRefreshToken = !!localStorage.getItem('refreshToken');
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('refreshToken');
-                
+
                 // Only redirect to login if user was previously authenticated
                 // Guest users should not be redirected
                 if (hadRefreshToken) {

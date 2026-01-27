@@ -136,9 +136,9 @@ export async function validateCheckout(request: CheckoutRequest): Promise<{ vali
 /**
  * Get shipping options
  */
-export async function getShippingOptions(countryCode: string = 'US'): Promise<ShippingOptions> {
+export async function getShippingOptions(countryCode: string = 'US', currency?: string): Promise<ShippingOptions> {
     const response = await apiClient.get<ShippingOptions>('/checkout/shipping-options', {
-        params: { countryCode },
+        params: { countryCode, currency },
     });
     return response.data;
 }
@@ -146,8 +146,10 @@ export async function getShippingOptions(countryCode: string = 'US'): Promise<Sh
 /**
  * Get delivery types
  */
-export async function getDeliveryTypes(): Promise<DeliveryType[]> {
-    const response = await apiClient.get<DeliveryType[]>('/delivery-types');
+export async function getDeliveryTypes(currency?: string): Promise<DeliveryType[]> {
+    const response = await apiClient.get<DeliveryType[]>('/delivery-types', {
+        params: { currency }
+    });
     return response.data;
 }
 
