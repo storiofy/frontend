@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import apiClient from '@lib/api/client';
 import { useAuthStore } from '@store/authStore';
 import GoogleAuthButton from './GoogleAuthButton';
-import { Mail, Lock, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, ArrowRight, ShieldCheck } from 'lucide-react';
 
 const loginSchema = z.object({
     email: z.string().email('Invalid email address'),
@@ -81,7 +81,7 @@ export default function LoginForm() {
                 <div className="space-y-2">
                     <div className="flex justify-between items-center ml-1">
                         <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Password</label>
-                        <Link to="/forgot-password" size="sm" className="text-[10px] font-black uppercase tracking-[0.1em] text-pink-500 hover:text-pink-600 transition">Forgot?</Link>
+                        <Link to="/forgot-password" className="text-[10px] font-black uppercase tracking-[0.1em] text-pink-500 hover:text-pink-600 transition">Forgot?</Link>
                     </div>
                     <div className="relative group">
                         <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-pink-500 transition-colors">

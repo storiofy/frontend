@@ -56,7 +56,7 @@ export interface OrderItemResponse {
     stickerId?: string;
     stickerTitle?: string;
     stickerSlug?: string;
-    personalizationId?: string;
+
     personalization?: {
         id: string;
         childFirstName: string;

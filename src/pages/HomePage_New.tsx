@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import Header from '@/app/components/Header';
-import Footer from '@/app/components/Footer';
-import { Star, ChevronRight, Sparkles, Gift, Heart } from 'lucide-react';
-import { ImageWithFallback } from '@/app/components/figma/ImageWithFallback';
+import Header from '@components/layout/Header';
+import Footer from '@components/layout/Footer';
+import { Star, ChevronRight, Sparkles, Gift } from 'lucide-react';
+import { ImageWithFallback } from '@components/figma/ImageWithFallback';
 
 const books = [
   {
@@ -51,7 +51,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      
+
       <main className="flex-1">
         {/* Hero Section - Compact with two columns */}
         <section className="bg-gradient-to-br from-blue-500 via-purple-400 to-pink-400 text-white">
@@ -60,13 +60,13 @@ export default function HomePage() {
               {/* Left: Text Content */}
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold mb-3">
-                  Create Magical Stories<br/>
+                  Create Magical Stories<br />
                   Starring Your Child
                 </h1>
                 <p className="text-blue-50 text-base mb-4 max-w-md">
                   Personalized AI storybooks with beautiful illustrations. Make your child the hero of their own adventure.
                 </p>
-                
+
                 {/* Stats in compact row */}
                 <div className="flex gap-6 mb-6">
                   <div>
@@ -97,8 +97,8 @@ export default function HomePage() {
               {/* Right: Book Preview Image */}
               <div className="relative">
                 <div className="relative mx-auto w-64 h-80 rounded-2xl overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 transition-transform">
-                  <ImageWithFallback 
-                    src="https://images.unsplash.com/photo-1755541608494-5c02cf56e1f4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400" 
+                  <ImageWithFallback
+                    src="https://images.unsplash.com/photo-1755541608494-5c02cf56e1f4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400"
                     alt="Personalized storybook"
                     className="w-full h-full object-cover"
                   />
@@ -148,7 +148,7 @@ export default function HomePage() {
                           <span className="text-lg font-bold text-pink-600">${book.price}</span>
                           <span className="text-sm text-gray-400 line-through ml-2">${book.oldPrice}</span>
                         </div>
-                        <Link 
+                        <Link
                           to={`/personalize/${book.id}`}
                           className="bg-gradient-to-r from-pink-500 to-blue-500 text-white px-4 py-1.5 rounded-md text-xs font-semibold hover:from-pink-600 hover:to-blue-600 transition"
                         >
@@ -197,7 +197,7 @@ export default function HomePage() {
                           <span className="text-lg font-bold text-pink-600">${book.price}</span>
                           <span className="text-sm text-gray-400 line-through ml-2">${book.oldPrice}</span>
                         </div>
-                        <Link 
+                        <Link
                           to={`/personalize/${book.id}`}
                           className="bg-gradient-to-r from-pink-500 to-blue-500 text-white px-4 py-1.5 rounded-md text-xs font-semibold hover:from-pink-600 hover:to-blue-600 transition"
                         >

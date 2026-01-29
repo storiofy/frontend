@@ -12,7 +12,7 @@ import { processCheckout, getShippingOptions, getDeliveryTypes, type CheckoutReq
 import { useAuthStore } from '@store/authStore';
 import { useCurrencyStore } from '@store/currencyStore';
 import { getCurrencySymbol } from '@lib/utils/currency';
-import { MapPin, Mail, Phone, User, Landmark, Truck, CreditCard, ChevronRight, ArrowLeft, ShieldCheck, Search, Crosshair, Sparkles, ShoppingBag } from 'lucide-react';
+import { MapPin, Mail, Landmark, Truck, CreditCard, ChevronRight, ArrowLeft, ShieldCheck, Search, Crosshair } from 'lucide-react';
 
 // Fix Leaflet default marker icon issue
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -166,19 +166,19 @@ export default function CheckoutPage() {
     const { currency } = useCurrencyStore();
     const [mapCoordinates, setMapCoordinates] = useState<{ lat: number; lng: number } | null>(null);
     const [isLocating, setIsLocating] = useState(false);
-    const [selectedAddress, setSelectedAddress] = useState<string>('');
+    const [, setSelectedAddress] = useState<string>('');
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearching, setIsSearching] = useState(false);
     const [searchResults, setSearchResults] = useState<any[]>([]);
 
     const defaultCenter: [number, number] = [13.7563, 100.5018];
 
-    const { data: cart, isLoading: cartLoading, error: cartError } = useQuery<CartResponse>({
+    const { data: cart, isLoading: cartLoading } = useQuery<CartResponse>({
         queryKey: ['cart', currency],
         queryFn: () => getCart(currency),
     });
 
-    const { data: deliveryTypes, isLoading: deliveryTypesLoading } = useQuery<DeliveryType[]>({
+    const { data: deliveryTypes } = useQuery<DeliveryType[]>({
         queryKey: ['delivery-types', currency],
         queryFn: () => getDeliveryTypes(currency),
     });
@@ -211,9 +211,7 @@ export default function CheckoutPage() {
         mode: 'onChange',
     });
 
-    const sameAsShipping = watch('sameAsShipping');
     const deliveryTypeId = watch('deliveryTypeId');
-    const phoneCountryCode = watch('phoneCountryCode');
 
     const subtotal = cart?.totals.subtotal || 0;
     const selectedDeliveryType = activeDeliveryTypes.find(dt => dt.id === deliveryTypeId);
@@ -303,7 +301,7 @@ export default function CheckoutPage() {
                 setIsLocating(false);
                 reverseGeocode(newCoords.lat, newCoords.lng);
             },
-            (error) => { setIsLocating(false); alert('Unable to get location'); }
+            () => { setIsLocating(false); alert('Unable to get location'); }
         );
     };
 

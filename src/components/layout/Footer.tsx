@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Instagram, Twitter } from 'lucide-react';
-import Logo from './Logo';
+
 
 export default function Footer() {
     const [email, setEmail] = useState('');

@@ -1,59 +1,59 @@
-import { Heart, Sparkles } from 'lucide-react';
+// import { Heart, Sparkles } from 'lucide-react';
 
 export default function Logo() {
   return (
     <div className="relative w-9 h-9">
       {/* Creative starburst design representing magic, AI creativity, and personalization */}
-      <svg 
-        viewBox="0 0 36 36" 
-        fill="none" 
+      <svg
+        viewBox="0 0 36 36"
+        fill="none"
         className="w-9 h-9"
         xmlns="http://www.w3.org/2000/svg"
       >
         {/* Outer starburst rays - gradient from blue to pink */}
-        <path 
-          d="M18 0L19.5 8L18 4L16.5 8L18 0Z" 
+        <path
+          d="M18 0L19.5 8L18 4L16.5 8L18 0Z"
           fill="url(#grad1)"
         />
-        <path 
-          d="M18 36L19.5 28L18 32L16.5 28L18 36Z" 
+        <path
+          d="M18 36L19.5 28L18 32L16.5 28L18 36Z"
           fill="url(#grad1)"
         />
-        <path 
-          d="M0 18L8 19.5L4 18L8 16.5L0 18Z" 
+        <path
+          d="M0 18L8 19.5L4 18L8 16.5L0 18Z"
           fill="url(#grad2)"
         />
-        <path 
-          d="M36 18L28 19.5L32 18L28 16.5L36 18Z" 
+        <path
+          d="M36 18L28 19.5L32 18L28 16.5L36 18Z"
           fill="url(#grad2)"
         />
-        <path 
-          d="M6 6L12 12L8 8L12 10L6 6Z" 
+        <path
+          d="M6 6L12 12L8 8L12 10L6 6Z"
           fill="url(#grad3)"
         />
-        <path 
-          d="M30 30L24 24L28 28L24 26L30 30Z" 
+        <path
+          d="M30 30L24 24L28 28L24 26L30 30Z"
           fill="url(#grad3)"
         />
-        <path 
-          d="M6 30L12 24L8 28L10 24L6 30Z" 
+        <path
+          d="M6 30L12 24L8 28L10 24L6 30Z"
           fill="url(#grad4)"
         />
-        <path 
-          d="M30 6L24 12L28 8L26 12L30 6Z" 
+        <path
+          d="M30 6L24 12L28 8L26 12L30 6Z"
           fill="url(#grad4)"
         />
-        
+
         {/* Center star */}
         <circle cx="18" cy="18" r="8" fill="url(#centerGrad)" />
         <circle cx="18" cy="18" r="5" fill="url(#innerGrad)" />
-        
+
         {/* Sparkle accents */}
         <circle cx="18" cy="11" r="1.5" fill="#60A5FA" />
         <circle cx="25" cy="18" r="1.5" fill="#EC4899" />
         <circle cx="18" cy="25" r="1.5" fill="#A78BFA" />
         <circle cx="11" cy="18" r="1.5" fill="#FBBF24" />
-        
+
         {/* Gradient definitions */}
         <defs>
           <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">

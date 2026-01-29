@@ -123,7 +123,7 @@ export default function PersonalizationPage() {
 
         try {
             let finalPersonalization = personalization;
-            const isAuthenticated = !!localStorage.getItem('accessToken');
+
 
             // If personalization wasn't created yet or failed
             if (!finalPersonalization) {

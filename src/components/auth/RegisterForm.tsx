@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import apiClient from '@lib/api/client';
 import { useAuthStore } from '@store/authStore';
 import GoogleAuthButton from './GoogleAuthButton';
-import { User, Mail, Lock, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
 
 const registerSchema = z.object({
     firstName: z.string().min(1, 'First name is required'),

@@ -11,7 +11,7 @@ import {
     type CartItemResponse,
     type CartResponse,
 } from '@lib/api/cart';
-import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, Shield, Sparkles, ChevronRight } from 'lucide-react';
+import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, Shield, ChevronRight } from 'lucide-react';
 import { ImageWithFallback } from '@components/figma/ImageWithFallback';
 
 export default function CartPage() {
