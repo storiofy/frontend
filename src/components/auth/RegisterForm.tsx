@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import apiClient from '@lib/api/client';
 import { useAuthStore } from '@store/authStore';
 import GoogleAuthButton from './GoogleAuthButton';
+import { Mail, Lock, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
 
 const registerSchema = z.object({
     firstName: z.string().min(1, 'First name is required'),
@@ -47,210 +48,134 @@ export default function RegisterForm() {
             });
             const { accessToken, refreshToken, userId, email, firstName, lastName, isAdmin } = response.data;
 
-            // Store auth state using store
             setAuth(
                 { id: userId, email, firstName, lastName, isAdmin: isAdmin || false },
                 accessToken,
                 refreshToken
             );
 
-            // Redirect to home
             navigate('/');
         } catch (err: any) {
-            setError(
-                err.response?.data?.message || 'Registration failed. Please try again.'
-            );
+            setError(err.response?.data?.message || 'Registration failed. Please try again.');
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-            {/* Logo */}
-            <div className="flex justify-center mb-6">
-                <img
-                    src="/logo.png"
-                    alt="Storiofy Logo"
-                    className="w-20 h-20 object-contain"
-                />
+        <div className="w-full bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-10 md:p-12">
+            <div className="mb-10 text-center">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-[2rem] mb-6 shadow-xl shadow-blue-100">
+                    <Sparkles className="w-10 h-10 text-white" />
+                </div>
+                <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-2">Create Account</h1>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Start your magical journey</p>
             </div>
 
-            {/* Title */}
-            <h1 className="text-3xl font-bold text-gray-900 mb-2 text-center">
-                Create Account
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-gray-600 mb-8 text-center">
-                Join us and start creating your stories
-            </p>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                {/* First Name & Last Name - Side by side */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label
-                            htmlFor="firstName"
-                            className="block text-sm font-semibold text-gray-700 mb-2"
-                        >
-                            First Name
-                        </label>
-                        <input
-                            {...register('firstName')}
-                            type="text"
-                            id="firstName"
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                            placeholder="First name"
-                        />
-                        {errors.firstName && (
-                            <p className="mt-1.5 text-xs text-red-600">
-                                {errors.firstName.message}
-                            </p>
-                        )}
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">First Name</label>
+                        <div className="relative group">
+                            <input
+                                {...register('firstName')}
+                                className="w-full h-14 px-6 rounded-2xl border-2 border-gray-100 focus:border-blue-500 transition-all outline-none font-bold text-gray-900 focus:ring-4 focus:ring-blue-50 group-hover:border-gray-200"
+                                placeholder="Hero"
+                            />
+                        </div>
+                        {errors.firstName && <p className="text-[10px] font-bold text-rose-500 mt-1 ml-1">{errors.firstName.message}</p>}
                     </div>
-
-                    <div>
-                        <label
-                            htmlFor="lastName"
-                            className="block text-sm font-semibold text-gray-700 mb-2"
-                        >
-                            Last Name
-                        </label>
-                        <input
-                            {...register('lastName')}
-                            type="text"
-                            id="lastName"
-                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                            placeholder="Last name"
-                        />
-                        {errors.lastName && (
-                            <p className="mt-1.5 text-xs text-red-600">
-                                {errors.lastName.message}
-                            </p>
-                        )}
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Last Name</label>
+                        <div className="relative group">
+                            <input
+                                {...register('lastName')}
+                                className="w-full h-14 px-6 rounded-2xl border-2 border-gray-100 focus:border-blue-500 transition-all outline-none font-bold text-gray-900 focus:ring-4 focus:ring-blue-50 group-hover:border-gray-200"
+                                placeholder="Surname"
+                            />
+                        </div>
+                        {errors.lastName && <p className="text-[10px] font-bold text-rose-500 mt-1 ml-1">{errors.lastName.message}</p>}
                     </div>
                 </div>
 
-                {/* Email Field */}
-                <div>
-                    <label
-                        htmlFor="email"
-                        className="block text-sm font-semibold text-gray-700 mb-2"
-                    >
-                        Email Address
-                    </label>
-                    <input
-                        {...register('email')}
-                        type="email"
-                        id="email"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                        placeholder="Enter your email"
-                    />
-                    {errors.email && (
-                        <p className="mt-2 text-sm text-red-600">
-                            {errors.email.message}
-                        </p>
-                    )}
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Email</label>
+                    <div className="relative group">
+                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+                            <Mail className="w-5 h-5" />
+                        </div>
+                        <input
+                            {...register('email')}
+                            type="email"
+                            className="w-full h-14 pl-14 pr-6 rounded-2xl border-2 border-gray-100 focus:border-blue-500 transition-all outline-none font-bold text-gray-900 focus:ring-4 focus:ring-blue-50 group-hover:border-gray-200"
+                            placeholder="hero@storiofy.com"
+                        />
+                    </div>
+                    {errors.email && <p className="text-[10px] font-bold text-rose-500 mt-1 ml-1">{errors.email.message}</p>}
                 </div>
 
-                {/* Password Field */}
-                <div>
-                    <label
-                        htmlFor="password"
-                        className="block text-sm font-semibold text-gray-700 mb-2"
-                    >
-                        Password
-                    </label>
-                    <input
-                        {...register('password')}
-                        type="password"
-                        id="password"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                        placeholder="Enter your password"
-                    />
-                    {errors.password && (
-                        <p className="mt-2 text-sm text-red-600">
-                            {errors.password.message}
-                        </p>
-                    )}
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Password</label>
+                    <div className="relative group">
+                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+                            <Lock className="w-5 h-5" />
+                        </div>
+                        <input
+                            {...register('password')}
+                            type="password"
+                            className="w-full h-14 pl-14 pr-6 rounded-2xl border-2 border-gray-100 focus:border-blue-500 transition-all outline-none font-bold text-gray-900 focus:ring-4 focus:ring-blue-50 group-hover:border-gray-200"
+                            placeholder="At least 8 characters"
+                        />
+                    </div>
+                    {errors.password && <p className="text-[10px] font-bold text-rose-500 mt-1 ml-1">{errors.password.message}</p>}
                 </div>
 
-                {/* Confirm Password Field */}
-                <div>
-                    <label
-                        htmlFor="confirmPassword"
-                        className="block text-sm font-semibold text-gray-700 mb-2"
-                    >
-                        Confirm Password
-                    </label>
-                    <input
-                        {...register('confirmPassword')}
-                        type="password"
-                        id="confirmPassword"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                        placeholder="Confirm your password"
-                    />
-                    {errors.confirmPassword && (
-                        <p className="mt-2 text-sm text-red-600">
-                            {errors.confirmPassword.message}
-                        </p>
-                    )}
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Confirm Magic Word</label>
+                    <div className="relative group">
+                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors">
+                            <ShieldCheck className="w-5 h-5" />
+                        </div>
+                        <input
+                            {...register('confirmPassword')}
+                            type="password"
+                            className="w-full h-14 pl-14 pr-6 rounded-2xl border-2 border-gray-100 focus:border-blue-500 transition-all outline-none font-bold text-gray-900 focus:ring-4 focus:ring-blue-50 group-hover:border-gray-200"
+                            placeholder="Confirm password"
+                        />
+                    </div>
+                    {errors.confirmPassword && <p className="text-[10px] font-bold text-rose-500 mt-1 ml-1">{errors.confirmPassword.message}</p>}
                 </div>
 
-                {/* Error Message */}
                 {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+                    <div className="bg-rose-50 border-2 border-rose-100 text-rose-600 px-5 py-4 rounded-2xl text-[10px] font-bold uppercase tracking-widest leading-relaxed">
                         {error}
                     </div>
                 )}
 
-                {/* Submit Button */}
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3.5 rounded-xl font-bold hover:from-indigo-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 duration-200"
+                    className="w-full h-14 bg-gray-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-gray-200 hover:bg-black transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
                 >
-                    {isLoading ? 'Creating Account...' : 'Create Account'}
+                    {isLoading ? 'Creating...' : <>Start My Adventure <ArrowRight className="w-4 h-4" /></>}
                 </button>
 
-                {/* Divider */}
-                <div className="relative my-6">
+                <div className="relative my-8">
                     <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-gray-200"></div>
+                        <div className="w-full border-t-2 border-gray-100"></div>
                     </div>
-                    <div className="relative flex justify-center text-sm">
-                        <span className="px-4 bg-white text-gray-500">Or continue with</span>
+                    <div className="relative flex justify-center">
+                        <span className="px-4 bg-white text-[10px] font-black uppercase tracking-widest text-gray-400">Or join with</span>
                     </div>
                 </div>
 
-                {/* Social Sign-up Buttons */}
-                <div className="grid grid-cols-2 gap-3">
-                    {/* Facebook Button (not yet implemented) */}
-                    <button
-                        type="button"
-                        disabled
-                        className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-xl font-semibold opacity-60 cursor-not-allowed"
-                    >
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                        </svg>
-                        <span>Facebook</span>
-                    </button>
-
-                    {/* Google Button */}
-                    <GoogleAuthButton label="Google" redirectTo="/" />
+                <div className="flex justify-center">
+                    <GoogleAuthButton label="Join with Google" redirectTo="/" />
                 </div>
 
-                {/* Login Link */}
-                <p className="text-center text-gray-600 text-sm pt-2">
-                    Already have an account?{' '}
-                    <Link
-                        to="/login"
-                        className="text-indigo-600 hover:text-indigo-700 font-bold transition-colors"
-                    >
-                        Sign In
-                    </Link>
+                <p className="text-center text-[10px] font-black text-gray-400 uppercase tracking-widest pt-4">
+                    Already a Hero?{' '}
+                    <Link to="/login" className="text-blue-500 hover:text-blue-600 transition ml-1">Sign In</Link>
                 </p>
             </form>
         </div>

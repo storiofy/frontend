@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useAuthStore } from '@store/authStore';
 import { useNavigate } from 'react-router-dom';
+import { User, Shield, Package, Heart, LogOut, ChevronRight, Edit3, Camera, Sparkles, MapPin, Bell } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ProfilePage() {
-    const { user } = useAuthStore();
+    const { user, logout } = useAuthStore();
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState<'profile' | 'security'>('profile');
+    const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'orders' | 'wishlist'>('profile');
 
     // Form states
     const [firstName, setFirstName] = useState(user?.firstName || '');
@@ -20,7 +22,6 @@ export default function ProfilePage() {
         await new Promise(resolve => setTimeout(resolve, 1000));
         setIsSaving(false);
         setIsEditing(false);
-        // TODO: Call API to update user profile
     };
 
     const handleCancel = () => {
@@ -30,252 +31,217 @@ export default function ProfilePage() {
         setIsEditing(false);
     };
 
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
+
     if (!user) {
         navigate('/login');
         return null;
     }
 
+    const tabs = [
+        { id: 'profile', label: 'Magic Profile', icon: User, color: 'text-blue-500' },
+        { id: 'orders', label: 'My Adventures', icon: Package, color: 'text-pink-500' },
+        { id: 'wishlist', label: 'Story Wishlist', icon: Heart, color: 'text-rose-500' },
+        { id: 'security', label: 'Vault Security', icon: Shield, color: 'text-indigo-500' }
+    ];
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-cyan-50 relative">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-5">
-                <div 
-                    className="absolute inset-0"
-                    style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l30 30-30 30L0 30z' fill='%234F46E5' fill-opacity='0.3'/%3E%3C/svg%3E")`,
-                    }}
-                />
-            </div>
+        <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 py-16 px-4">
+            <div className="max-w-6xl mx-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
 
-            {/* Floating Shapes */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-20 left-10 w-32 h-32 bg-indigo-400/20 rounded-full blur-3xl animate-pulse"></div>
-                <div className="absolute bottom-20 right-10 w-40 h-40 bg-blue-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-            </div>
-
-            <div className="relative py-12 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-5xl mx-auto">
-                    {/* Header Section */}
-                    <div className="mb-8">
-                        <h1 className="text-4xl font-bold text-gray-900 mb-2">My Profile</h1>
-                        <p className="text-gray-600">Manage your account settings and preferences</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                        {/* Sidebar */}
-                        <div className="lg:col-span-1">
-                            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 space-y-2 sticky top-24">
-                                <button
-                                    onClick={() => setActiveTab('profile')}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
-                                        activeTab === 'profile'
-                                            ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg'
-                                            : 'text-gray-700 hover:bg-gray-100'
-                                    }`}
-                                >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
-                                    <span>Profile Info</span>
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('security')}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
-                                        activeTab === 'security'
-                                            ? 'bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-lg'
-                                            : 'text-gray-700 hover:bg-gray-100'
-                                    }`}
-                                >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                    </svg>
-                                    <span>Security</span>
-                                </button>
+                    {/* Left: Nav Sidebar */}
+                    <div className="lg:col-span-4 space-y-6">
+                        <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-8">
+                            <div className="flex flex-col items-center mb-8">
+                                <div className="relative group">
+                                    <div className="w-24 h-24 rounded-[2rem] bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center text-white text-3xl font-black shadow-xl shadow-pink-100 border-4 border-white transition group-hover:scale-105">
+                                        {user.firstName[0]}{user.lastName[0]}
+                                    </div>
+                                    <button className="absolute -bottom-2 -right-2 w-10 h-10 bg-gray-900 rounded-2xl flex items-center justify-center text-white shadow-lg hover:bg-black transition border-4 border-white">
+                                        <Camera className="w-4 h-4" />
+                                    </button>
+                                </div>
+                                <h2 className="mt-6 text-2xl font-black text-gray-900">{user.firstName} {user.lastName}</h2>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mt-1">{user.email}</p>
+                                {user.isAdmin && (
+                                    <div className="mt-3 px-3 py-1 bg-gray-900 rounded-full flex items-center gap-1.5">
+                                        <Sparkles className="w-3 h-3 text-pink-500" />
+                                        <span className="text-[8px] font-black uppercase tracking-widest text-white">Magic Admin</span>
+                                    </div>
+                                )}
                             </div>
+
+                            <nav className="space-y-2">
+                                {tabs.map(tab => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id as any)}
+                                        className={`w-full h-14 flex items-center justify-between px-6 rounded-2xl transition-all ${activeTab === tab.id
+                                            ? 'bg-gray-900 text-white shadow-lg shadow-gray-200'
+                                            : 'text-gray-400 hover:bg-gray-50 hover:text-gray-900 font-bold'
+                                            }`}
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-pink-500' : ''}`} />
+                                            <span className="text-xs font-black uppercase tracking-widest">{tab.label}</span>
+                                        </div>
+                                        <ChevronRight className={`w-4 h-4 ${activeTab === tab.id ? 'opacity-100' : 'opacity-0'}`} />
+                                    </button>
+                                ))}
+                                <div className="pt-4 border-t border-gray-100 mt-4">
+                                    <button
+                                        onClick={handleLogout}
+                                        className="w-full h-14 flex items-center gap-4 px-6 rounded-2xl text-rose-500 hover:bg-rose-50 transition-colors"
+                                    >
+                                        <LogOut className="w-5 h-5" />
+                                        <span className="text-xs font-black uppercase tracking-widest">Sign Out</span>
+                                    </button>
+                                </div>
+                            </nav>
                         </div>
 
-                        {/* Main Content */}
-                        <div className="lg:col-span-3">
-                            {activeTab === 'profile' && (
-                                <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden">
-                                    {/* Profile Header */}
-                                    <div className="relative h-32 bg-gradient-to-r from-indigo-600 via-blue-600 to-cyan-600">
-                                        <div className="absolute inset-0 bg-black/10"></div>
-                                    </div>
+                        <div className="bg-gradient-to-br from-indigo-500 to-blue-600 rounded-[2.5rem] p-8 text-white text-center shadow-xl shadow-blue-100 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-bl-full blur-xl"></div>
+                            <Sparkles className="w-10 h-10 text-white/50 mx-auto mb-4" />
+                            <h4 className="font-black text-lg mb-2">Magic Credits</h4>
+                            <p className="text-[10px] font-bold text-blue-100 uppercase tracking-widest mb-6 leading-relaxed">
+                                You have <span className="text-white font-black text-sm">240</span> points to spend!
+                            </p>
+                            <button className="h-12 px-6 bg-white text-blue-600 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:shadow-xl transition-all w-full">
+                                Redeem Now
+                            </button>
+                        </div>
+                    </div>
 
-                                    {/* Avatar Section */}
-                                    <div className="relative px-6 sm:px-8 pb-8">
-                                        <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-16 mb-6">
-                                            <div className="relative">
-                                                <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-600 flex items-center justify-center text-white text-4xl font-bold shadow-2xl border-4 border-white">
-                                                    {user.firstName[0]}{user.lastName[0]}
-                                                </div>
-                                                <button className="absolute bottom-0 right-0 w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center text-indigo-600 hover:bg-indigo-50 transition-colors">
-                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                            <div className="flex-1">
-                                                <h2 className="text-2xl font-bold text-gray-900">{user.firstName} {user.lastName}</h2>
-                                                <p className="text-gray-600">{user.email}</p>
-                                                {user.isAdmin && (
-                                                    <span className="inline-flex items-center gap-1 px-3 py-1 mt-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white text-xs font-semibold rounded-full">
-                                                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-                                                        </svg>
-                                                        Admin
-                                                    </span>
-                                                )}
+                    {/* Right: Content Area */}
+                    <div className="lg:col-span-8 flex flex-col gap-6">
+
+                        <AnimatePresence mode="wait">
+                            {activeTab === 'profile' && (
+                                <motion.div
+                                    key="profile"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    className="space-y-6"
+                                >
+                                    <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
+                                        <div className="bg-gray-900 p-8 text-white flex justify-between items-center">
+                                            <div>
+                                                <h3 className="text-lg font-black uppercase tracking-wider">Account Hero</h3>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-gray-500 mt-1">Manage your basic details</p>
                                             </div>
                                             {!isEditing ? (
-                                                <button
-                                                    onClick={() => setIsEditing(true)}
-                                                    className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                                                >
-                                                    Edit Profile
+                                                <button onClick={() => setIsEditing(true)} className="h-10 px-5 bg-white/10 hover:bg-white/20 rounded-xl flex items-center gap-2 transition">
+                                                    <Edit3 className="w-4 h-4" />
+                                                    <span className="text-[10px] font-black uppercase tracking-widest">Edit</span>
                                                 </button>
                                             ) : (
                                                 <div className="flex gap-2">
-                                                    <button
-                                                        onClick={handleCancel}
-                                                        disabled={isSaving}
-                                                        className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-all disabled:opacity-50"
-                                                    >
-                                                        Cancel
+                                                    <button onClick={handleCancel} className="h-10 px-5 bg-white/10 hover:bg-white/20 rounded-xl transition">
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">Cancel</span>
                                                     </button>
-                                                    <button
-                                                        onClick={handleSave}
-                                                        disabled={isSaving}
-                                                        className="px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg disabled:opacity-50"
-                                                    >
-                                                        {isSaving ? 'Saving...' : 'Save Changes'}
+                                                    <button onClick={handleSave} className="h-10 px-5 bg-pink-500 hover:bg-pink-600 rounded-xl transition text-white">
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">{isSaving ? 'Saving...' : 'Save'}</span>
                                                     </button>
                                                 </div>
                                             )}
                                         </div>
 
-                                        {/* Profile Information */}
-                                        <div className="space-y-6 pt-6 border-t border-gray-200">
-                                            <div>
-                                                <h3 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                            First Name
-                                                        </label>
-                                                        <input
-                                                            type="text"
-                                                            value={firstName}
-                                                            onChange={(e) => setFirstName(e.target.value)}
-                                                            disabled={!isEditing}
-                                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-600 transition-all"
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                            Last Name
-                                                        </label>
-                                                        <input
-                                                            type="text"
-                                                            value={lastName}
-                                                            onChange={(e) => setLastName(e.target.value)}
-                                                            disabled={!isEditing}
-                                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-600 transition-all"
-                                                        />
-                                                    </div>
-                                                    <div className="sm:col-span-2">
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                            Email Address
-                                                        </label>
-                                                        <input
-                                                            type="email"
-                                                            value={email}
-                                                            onChange={(e) => setEmail(e.target.value)}
-                                                            disabled={!isEditing}
-                                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-600 transition-all"
-                                                        />
-                                                    </div>
+                                        <div className="p-8 md:p-10 space-y-10">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                <div className="space-y-4">
+                                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">First Name</label>
+                                                    <input
+                                                        value={firstName}
+                                                        onChange={e => setFirstName(e.target.value)}
+                                                        disabled={!isEditing}
+                                                        className="w-full h-14 px-6 rounded-2xl border-2 border-gray-100 focus:border-blue-500 transition-all outline-none font-bold text-gray-900 disabled:bg-gray-50/50"
+                                                    />
+                                                </div>
+                                                <div className="space-y-4">
+                                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Last Name</label>
+                                                    <input
+                                                        value={lastName}
+                                                        onChange={e => setLastName(e.target.value)}
+                                                        disabled={!isEditing}
+                                                        className="w-full h-14 px-6 rounded-2xl border-2 border-gray-100 focus:border-blue-500 transition-all outline-none font-bold text-gray-900 disabled:bg-gray-50/50"
+                                                    />
+                                                </div>
+                                                <div className="md:col-span-2 space-y-4">
+                                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Email Connection</label>
+                                                    <input
+                                                        value={email}
+                                                        onChange={e => setEmail(e.target.value)}
+                                                        disabled={!isEditing}
+                                                        className="w-full h-14 px-6 rounded-2xl border-2 border-gray-100 focus:border-blue-500 transition-all outline-none font-bold text-gray-900 disabled:bg-gray-50/50"
+                                                    />
                                                 </div>
                                             </div>
 
-                                            {/* Account Stats */}
-                                            <div className="pt-6 border-t border-gray-200">
-                                                <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Statistics</h3>
-                                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                                    <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-4 text-center">
-                                                        <div className="text-2xl font-bold text-indigo-600">12</div>
-                                                        <div className="text-xs text-gray-600 mt-1">Books Ordered</div>
+                                            <div className="pt-10 border-t border-gray-100 grid grid-cols-2 md:grid-cols-4 gap-6">
+                                                {[
+                                                    { label: 'Orders', val: '12', color: 'text-blue-500', bg: 'bg-blue-50' },
+                                                    { label: 'Books', val: '5', color: 'text-pink-500', bg: 'bg-pink-50' },
+                                                    { label: 'Active', val: '3', color: 'text-amber-500', bg: 'bg-amber-50' },
+                                                    { label: 'Likes', val: '8', color: 'text-rose-500', bg: 'bg-rose-50' }
+                                                ].map((stat, idx) => (
+                                                    <div key={idx} className={`${stat.bg} rounded-3xl p-6 text-center shadow-sm`}>
+                                                        <div className={`text-2xl font-black ${stat.color}`}>{stat.val}</div>
+                                                        <div className="text-[8px] font-black uppercase tracking-widest text-gray-400 mt-1">{stat.label}</div>
                                                     </div>
-                                                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 text-center">
-                                                        <div className="text-2xl font-bold text-green-600">5</div>
-                                                        <div className="text-xs text-gray-600 mt-1">Personalized</div>
-                                                    </div>
-                                                    <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 text-center">
-                                                        <div className="text-2xl font-bold text-orange-600">3</div>
-                                                        <div className="text-xs text-gray-600 mt-1">In Progress</div>
-                                                    </div>
-                                                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 text-center">
-                                                        <div className="text-2xl font-bold text-purple-600">8</div>
-                                                        <div className="text-xs text-gray-600 mt-1">Favorites</div>
-                                                    </div>
-                                                </div>
+                                                ))}
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            )}
 
-                            {activeTab === 'security' && (
-                                <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
-                                    <div>
-                                        <h3 className="text-xl font-semibold text-gray-900 mb-2">Security Settings</h3>
-                                        <p className="text-gray-600 text-sm">Manage your password and security preferences</p>
-                                    </div>
-
-                                    {/* Change Password */}
-                                    <div className="pt-4 border-t border-gray-200">
-                                        <h4 className="text-lg font-semibold text-gray-900 mb-4">Change Password</h4>
-                                        <div className="space-y-4">
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Current Password
-                                                </label>
-                                                <input
-                                                    type="password"
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                                    placeholder="Enter current password"
-                                                />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm flex items-center gap-6">
+                                            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500">
+                                                <MapPin className="w-8 h-8" />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    New Password
-                                                </label>
-                                                <input
-                                                    type="password"
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                                    placeholder="Enter new password"
-                                                />
+                                                <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest">Addresses</h4>
+                                                <p className="text-[10px] font-bold text-gray-400 mt-1 underline cursor-pointer hover:text-blue-500 transition">Manage your drops</p>
+                                            </div>
+                                        </div>
+                                        <div className="bg-white rounded-[2.5rem] p-8 border border-gray-100 shadow-sm flex items-center gap-6">
+                                            <div className="w-16 h-16 bg-pink-50 rounded-2xl flex items-center justify-center text-pink-500">
+                                                <Bell className="w-8 h-8" />
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                    Confirm New Password
-                                                </label>
-                                                <input
-                                                    type="password"
-                                                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                                    placeholder="Confirm new password"
-                                                />
+                                                <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest">Notifications</h4>
+                                                <p className="text-[10px] font-bold text-gray-400 mt-1 underline cursor-pointer hover:text-blue-500 transition">Control magic alerts</p>
                                             </div>
-                                            <button className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl">
-                                                Update Password
-                                            </button>
                                         </div>
                                     </div>
-                                </div>
+                                </motion.div>
                             )}
-                        </div>
+
+                            {(activeTab === 'security' || activeTab === 'orders' || activeTab === 'wishlist') && (
+                                <motion.div
+                                    key="others"
+                                    initial={{ opacity: 0, scale: 0.98 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-12 flex flex-col items-center text-center justify-center min-h-[400px]"
+                                >
+                                    <div className="w-24 h-24 bg-gray-50 rounded-[2rem] flex items-center justify-center mb-8">
+                                        <Sparkles className="w-12 h-12 text-gray-200" />
+                                    </div>
+                                    <h3 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tighter">Magical Area Coming Soon</h3>
+                                    <p className="text-gray-400 font-bold max-w-xs mx-auto text-sm">
+                                        We're busy polishing this enchanted corner of your account. Check back very soon!
+                                    </p>
+                                    <div className="mt-8 flex gap-2">
+                                        {[1, 2, 3].map(i => <div key={i} className="w-2 h-2 rounded-full bg-pink-500/20"></div>)}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 </div>
             </div>

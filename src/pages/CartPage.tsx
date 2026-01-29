@@ -9,7 +9,11 @@ import {
     updateCartItem,
     clearCart,
     type CartItemResponse,
+    type CartResponse,
 } from '@lib/api/cart';
+import { ShoppingBag, Trash2, Plus, Minus, ArrowLeft, Shield, ChevronRight } from 'lucide-react';
+import { ImageWithFallback } from '@components/figma/ImageWithFallback';
+
 export default function CartPage() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -21,24 +25,9 @@ export default function CartPage() {
         data: cart,
         isLoading,
         error,
-    } = useQuery({
+    } = useQuery<CartResponse>({
         queryKey: ['cart', currency],
-        queryFn: async () => {
-            const cartData = await getCart(currency);
-            // Debug logging - check personalization data
-            console.log('Cart data received:', cartData);
-            cartData.items.forEach((item, index) => {
-                console.log(`Cart item ${index}:`, {
-                    id: item.id,
-                    bookTitle: item.bookTitle,
-                    personalizationId: item.personalizationId,
-                    personalizationChildFirstName: item.personalizationChildFirstName,
-                    personalizationChildAge: item.personalizationChildAge,
-                    personalizationChildPhotoUrl: item.personalizationChildPhotoUrl,
-                });
-            });
-            return cartData;
-        },
+        queryFn: () => getCart(currency),
         refetchOnWindowFocus: false,
     });
 
@@ -68,17 +57,10 @@ export default function CartPage() {
     });
 
     const handleQuantityChange = async (item: CartItemResponse, newQuantity: number) => {
-        if (newQuantity < 1) {
-            return;
-        }
-
+        if (newQuantity < 1) return;
         setUpdatingItems((prev) => new Set(prev).add(item.id));
-
         try {
-            await updateQuantityMutation.mutateAsync({
-                itemId: item.id,
-                quantity: newQuantity,
-            });
+            await updateQuantityMutation.mutateAsync({ itemId: item.id, quantity: newQuantity });
         } finally {
             setUpdatingItems((prev) => {
                 const next = new Set(prev);
@@ -89,411 +71,226 @@ export default function CartPage() {
     };
 
     const handleRemoveItem = async (itemId: string) => {
-        if (window.confirm('Are you sure you want to remove this item from your cart?')) {
+        if (window.confirm('Remove this item from your cart?')) {
             await removeItemMutation.mutateAsync(itemId);
         }
     };
 
     const handleClearCart = async () => {
-        if (window.confirm('Are you sure you want to clear your entire cart?')) {
+        if (window.confirm('Clear your entire cart?')) {
             await clearCartMutation.mutateAsync();
         }
     };
 
-    const handleCheckout = () => {
-        // Go directly to checkout - supports both authenticated users and guest checkout
-        navigate('/checkout');
-    };
-
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="animate-pulse">
-                        <div className="h-8 bg-gray-200 rounded-xl w-48 mb-8"></div>
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <div className="lg:col-span-2 space-y-4">
-                                {[1, 2, 3].map((i) => (
-                                    <div key={i} className="bg-white rounded-2xl p-6 h-32"></div>
-                                ))}
-                            </div>
-                            <div className="lg:col-span-1">
-                                <div className="bg-white rounded-2xl p-6 h-64"></div>
-                            </div>
-                        </div>
+            <div className="min-h-screen bg-pink-50/30 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600"></div>
+            </div>
+        );
+    }
+
+    if (error || !cart || cart.items.length === 0) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 py-20 flex items-center justify-center">
+                <div className="max-w-md w-full px-6 text-center">
+                    <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl">
+                        <ShoppingBag className="w-12 h-12 text-pink-500" />
                     </div>
+                    <h1 className="text-2xl font-black text-gray-900 mb-4 tracking-tight">Your cart is empty</h1>
+                    <p className="text-xs font-bold text-gray-500 mb-10 uppercase tracking-widest text-[10px]">Start your story adventure! Browse our collection of personalized books.</p>
+                    <button
+                        onClick={() => navigate('/books')}
+                        className="w-full bg-gradient-to-r from-pink-500 to-blue-500 text-white h-12 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:shadow-xl transition-all"
+                    >
+                        Explore Stories
+                    </button>
+                    <Link to="/" className="inline-block mt-6 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-pink-500 transition">Back to Home</Link>
                 </div>
             </div>
         );
     }
 
-    if (error) {
-        return (
-            <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
-                            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <h2 className="text-2xl font-bold text-red-800 mb-2">
-                            Error Loading Cart
-                        </h2>
-                        <p className="text-red-600 mb-6">
-                            {error instanceof Error ? error.message : 'Failed to load cart items'}
-                        </p>
-                        <button
-                            onClick={() => queryClient.invalidateQueries({ queryKey: ['cart'] })}
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl font-semibold hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl"
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                            <span>Try Again</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    if (!cart || cart.items.length === 0) {
-        return (
-            <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <h1 className="text-4xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
-                    <div className="bg-white rounded-3xl shadow-xl p-12 text-center border border-gray-100">
-                        <div className="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-full mb-6">
-                            <svg
-                                className="h-16 w-16 text-indigo-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                                />
-                            </svg>
-                        </div>
-                        <h2 className="text-3xl font-bold text-gray-900 mb-3">
-                            Your cart is empty
-                        </h2>
-                        <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                            Start your story adventure! Browse our collection of personalized books.
-                        </p>
-                        <Link
-                            to="/books"
-                            className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 duration-200"
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                            </svg>
-                            <span>Explore Books</span>
-                        </Link>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+    const currencySymbol = getCurrencySymbol(currency);
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                    <div>
-                        <h1 className="text-4xl font-bold text-gray-900 mb-2">Shopping Cart</h1>
-                        <p className="text-gray-600">{cart.items.length} {cart.items.length === 1 ? 'item' : 'items'} in your cart</p>
-                    </div>
-                    {cart.items.length > 0 && (
-                        <button
-                            onClick={handleClearCart}
-                            disabled={clearCartMutation.isPending}
-                            className="inline-flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 font-semibold hover:bg-red-50 rounded-xl transition-all disabled:opacity-50"
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            <span>{clearCartMutation.isPending ? 'Clearing...' : 'Clear Cart'}</span>
-                        </button>
-                    )}
-                </div>
+        <div className="min-h-screen flex flex-col">
+            <main className="flex-grow bg-gradient-to-br from-pink-50 via-blue-50 to-white">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+                    {/* Back button */}
+                    <Link
+                        to="/"
+                        className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-pink-500 transition mb-8 group"
+                    >
+                        <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" />
+                        Back to Home
+                    </Link>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Cart Items */}
-                    <div className="lg:col-span-2 space-y-4">
-                        {cart.items.map((item) => (
-                            <div
-                                key={item.id}
-                                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6 flex flex-col sm:flex-row gap-6 border border-gray-100"
-                            >
-                                {/* Product Image */}
-                                <Link
-                                    to={`/books/${item.bookSlug}`}
-                                    className="flex-shrink-0 group"
+                    <div className="grid lg:grid-cols-3 gap-10">
+                        {/* Cart Items Section */}
+                        <div className="lg:col-span-2 space-y-8">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h1 className="text-2xl font-black text-gray-900 flex items-center gap-3 tracking-tight">
+                                        <ShoppingBag className="w-6 h-6 text-pink-500" />
+                                        Shopping Bag
+                                    </h1>
+                                    <p className="text-[10px] font-black text-gray-400 mt-1 uppercase tracking-widest">
+                                        {cart.items.length} {cart.items.length === 1 ? 'adventure' : 'adventures'} ready for print
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={handleClearCart}
+                                    className="text-[10px] font-black text-gray-400 hover:text-red-500 transition flex items-center gap-1.5 uppercase tracking-widest"
                                 >
-                                    <img
-                                        src={
-                                            item.bookCoverImageUrl ||
-                                            'https://via.placeholder.com/150x200?text=Product'
-                                        }
-                                        alt={item.bookTitle || 'Product'}
-                                        className="w-full sm:w-32 h-48 sm:h-40 object-cover rounded-xl group-hover:scale-105 transition-transform duration-300"
-                                    />
-                                </Link>
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    Clear Bag
+                                </button>
+                            </div>
 
-                                {/* Product Details */}
-                                <div className="flex-1 flex flex-col justify-between min-w-0">
-                                    <div>
-                                        <Link
-                                            to={`/books/${item.bookSlug}`}
-                                            className="text-xl font-bold text-gray-900 hover:text-indigo-600 transition-colors block truncate"
-                                        >
-                                            {item.bookTitle}
-                                        </Link>
+                            <div className="space-y-4">
+                                {cart.items.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className="bg-white rounded-2xl p-6 flex gap-6 shadow-sm border border-gray-100 hover:shadow-md transition-all group relative overflow-hidden"
+                                    >
+                                        {/* Product Image */}
+                                        <div className="w-20 h-28 md:w-24 md:h-32 flex-shrink-0 bg-gray-50 rounded-xl overflow-hidden shadow-sm">
+                                            <ImageWithFallback
+                                                src={item.bookCoverImageUrl}
+                                                alt={item.bookTitle}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                            />
+                                        </div>
 
-                                        {/* Personalization Details Card */}
-                                        {item.personalizationId && (
-                                            <div className="mt-4 p-4 bg-gradient-to-r from-indigo-50 via-blue-50 to-purple-50 rounded-xl border border-indigo-100 shadow-sm">
-                                                <div className="flex items-start gap-3">
-                                                    {/* Child Photo */}
-                                                    {item.personalizationChildPhotoUrl && (
-                                                        <div className="flex-shrink-0">
-                                                            <img
-                                                                src={item.personalizationChildPhotoUrl}
-                                                                alt={`Photo of ${item.personalizationChildFirstName || 'child'}`}
-                                                                className="w-16 h-16 object-cover rounded-full border-2 border-indigo-200 shadow-md ring-2 ring-white"
-                                                            />
+                                        {/* Product Details */}
+                                        <div className="flex-grow flex flex-col justify-between py-1">
+                                            <div className="flex items-start justify-between">
+                                                <div className="space-y-2.5">
+                                                    <h3 className="text-lg font-black text-gray-900 leading-tight group-hover:text-pink-600 transition truncate max-w-[180px] md:max-w-md">
+                                                        {item.bookTitle}
+                                                    </h3>
+
+                                                    {/* Character Badge */}
+                                                    {item.personalizationId && (
+                                                        <div className="inline-flex items-center gap-2.5 px-3 py-1.5 bg-pink-50 rounded-xl border border-pink-100/50">
+                                                            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm overflow-hidden">
+                                                                {item.personalizationChildPhotoUrl ? (
+                                                                    <img src={item.personalizationChildPhotoUrl} className="w-full h-full object-cover" alt="Child" />
+                                                                ) : (
+                                                                    <span className="text-sm">👤</span>
+                                                                )}
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-pink-500 font-black uppercase tracking-widest leading-none mb-1 text-[8px]">
+                                                                    STARRING
+                                                                </div>
+                                                                <div className="text-xs font-black text-gray-900 leading-none">
+                                                                    {item.personalizationChildFirstName} <span className="text-gray-400 font-bold ml-1 text-[10px]">({item.personalizationChildAge}yr)</span>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     )}
 
-                                                    {/* Personalization Info */}
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="flex items-center gap-2 mb-2">
-                                                            <span className="text-lg">✨</span>
-                                                            <span className="text-sm font-bold text-indigo-700 uppercase tracking-wide">Personalized Edition</span>
-                                                        </div>
+                                                    <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">LANGUAGE: {item.languageCode}</p>
+                                                </div>
 
-                                                        {item.personalizationChildFirstName && (
-                                                            <div className="space-y-1">
-                                                                <p className="text-sm text-gray-700">
-                                                                    <span className="font-semibold">Child's Name:</span>{' '}
-                                                                    <span className="text-indigo-600 font-bold">{item.personalizationChildFirstName}</span>
-                                                                </p>
-                                                                {item.personalizationChildAge !== undefined && (
-                                                                    <p className="text-sm text-gray-700">
-                                                                        <span className="font-semibold">Age:</span>{' '}
-                                                                        <span className="font-bold">{item.personalizationChildAge}</span> years old
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                        )}
+                                                <button
+                                                    onClick={() => handleRemoveItem(item.id)}
+                                                    className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
 
-                                                        {!item.personalizationChildPhotoUrl && (
-                                                            <p className="text-xs text-gray-500 mt-1.5 italic flex items-center gap-1">
-                                                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                                </svg>
-                                                                No photo uploaded
-                                                            </p>
-                                                        )}
+                                            {/* Quantity and Price */}
+                                            <div className="flex items-center justify-between mt-auto">
+                                                <div className="flex items-center bg-gray-50 rounded-xl p-0.5 border border-gray-100">
+                                                    <button
+                                                        onClick={() => handleQuantityChange(item, item.quantity - 1)}
+                                                        className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-lg transition disabled:opacity-30"
+                                                        disabled={item.quantity <= 1 || updatingItems.has(item.id)}
+                                                    >
+                                                        <Minus className="w-3 h-3 text-gray-600" />
+                                                    </button>
+                                                    <span className="w-8 text-center text-sm font-black text-gray-900">{item.quantity}</span>
+                                                    <button
+                                                        onClick={() => handleQuantityChange(item, item.quantity + 1)}
+                                                        className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-lg transition disabled:opacity-30"
+                                                        disabled={updatingItems.has(item.id)}
+                                                    >
+                                                        <Plus className="w-3 h-3 text-gray-600" />
+                                                    </button>
+                                                </div>
+
+                                                <div className="text-right">
+                                                    <div className="text-xl font-black text-gray-900 leading-none tracking-tight">
+                                                        {currencySymbol}{item.totalPrice.toFixed(0)}
                                                     </div>
                                                 </div>
                                             </div>
-                                        )}
-
-                                        <p className="text-sm text-gray-600 mt-3 flex items-center gap-1.5">
-                                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-                                            </svg>
-                                            <span className="font-semibold">Language:</span> {item.languageCode.toUpperCase()}
-                                        </p>
-                                    </div>
-
-                                    {/* Quantity and Price Controls */}
-                                    <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
-                                        {/* Quantity Selector */}
-                                        <div className="flex items-center gap-3">
-                                            <label htmlFor={`quantity-${item.id}`} className="text-sm font-semibold text-gray-700">
-                                                Qty:
-                                            </label>
-                                            <div className="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden hover:border-indigo-300 transition-colors">
-                                                <button
-                                                    onClick={() =>
-                                                        handleQuantityChange(item, item.quantity - 1)
-                                                    }
-                                                    disabled={
-                                                        item.quantity <= 1 ||
-                                                        updatingItems.has(item.id)
-                                                    }
-                                                    className="px-4 py-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed font-bold transition-all"
-                                                >
-                                                    −
-                                                </button>
-                                                <input
-                                                    type="number"
-                                                    id={`quantity-${item.id}`}
-                                                    min="1"
-                                                    value={item.quantity}
-                                                    onChange={(e) => {
-                                                        const newQuantity = parseInt(e.target.value) || 1;
-                                                        handleQuantityChange(item, newQuantity);
-                                                    }}
-                                                    disabled={updatingItems.has(item.id)}
-                                                    className="w-16 text-center border-0 focus:ring-0 focus:outline-none disabled:opacity-50 font-semibold text-gray-900"
-                                                />
-                                                <button
-                                                    onClick={() =>
-                                                        handleQuantityChange(item, item.quantity + 1)
-                                                    }
-                                                    disabled={updatingItems.has(item.id)}
-                                                    className="px-4 py-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 disabled:cursor-not-allowed font-bold transition-all"
-                                                >
-                                                    +
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        {/* Price */}
-                                        <div className="text-right">
-                                            <p className="text-2xl font-bold text-gray-900">
-                                                {getCurrencySymbol(currency)}{item.totalPrice.toFixed(2)}
-                                            </p>
-                                            {item.discountAmount > 0 && (
-                                                <p className="text-sm text-gray-500 line-through">
-                                                    {getCurrencySymbol(currency)}{(item.totalPrice + item.discountAmount).toFixed(2)}
-                                                </p>
-                                            )}
                                         </div>
                                     </div>
-                                </div>
-
-                                {/* Remove Button */}
-                                <div className="flex items-start">
-                                    <button
-                                        onClick={() => handleRemoveItem(item.id)}
-                                        disabled={removeItemMutation.isPending}
-                                        className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2.5 rounded-xl disabled:opacity-50 transition-all group"
-                                        aria-label="Remove item"
-                                        title="Remove from cart"
-                                    >
-                                        <svg
-                                            className="w-6 h-6"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                            />
-                                        </svg>
-                                    </button>
-                                </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
+                        </div>
 
-                    {/* Order Summary */}
-                    <div className="lg:col-span-1">
-                        <div className="bg-white rounded-2xl shadow-xl p-8 sticky top-4 border border-gray-100">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                                <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                </svg>
-                                <span>Order Summary</span>
-                            </h2>
+                        {/* Order Summary Sidebar */}
+                        <div className="lg:col-span-1">
+                            <div className="bg-gray-900 rounded-[2rem] p-8 text-white shadow-2xl relative overflow-hidden sticky top-8">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-pink-500/10 rounded-bl-[100px] blur-2xl"></div>
 
-                            <div className="space-y-4 mb-6">
-                                <div className="flex justify-between text-gray-700">
-                                    <span className="font-medium">Subtotal</span>
-                                    <span className="font-semibold">{getCurrencySymbol(currency)}{cart.totals.subtotal.toFixed(2)}</span>
-                                </div>
+                                <h2 className="text-lg font-black mb-8 tracking-tight">Order Insight</h2>
 
-                                {cart.totals.discount > 0 && (
-                                    <div className="flex justify-between text-green-600 bg-green-50 px-3 py-2 rounded-lg">
-                                        <span className="font-medium">Discount</span>
-                                        <span className="font-bold">-{getCurrencySymbol(currency)}{cart.totals.discount.toFixed(2)}</span>
+                                <div className="space-y-5 mb-10 pb-8 border-b border-white/10">
+                                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                        <span>Subtotal</span>
+                                        <span className="text-xs text-white uppercase font-black">{currencySymbol}{cart.totals.subtotal.toFixed(0)}</span>
                                     </div>
-                                )}
 
-                                <div className="flex justify-between text-gray-700">
-                                    <span className="font-medium">Shipping</span>
-                                    <span className="font-semibold">
-                                        {cart.totals.shipping === 0 ? (
-                                            <span className="text-green-600 font-bold flex items-center gap-1">
-                                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                                </svg>
-                                                Free
-                                            </span>
-                                        ) : (
-                                            `${getCurrencySymbol(currency)}${cart.totals.shipping.toFixed(2)}`
-                                        )}
-                                    </span>
+                                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                        <span>Delivery</span>
+                                        <span className="text-xs font-black text-emerald-400 uppercase tracking-widest">FREE</span>
+                                    </div>
+
+                                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-gray-400">
+                                        <span>Taxes</span>
+                                        <span className="text-xs text-white uppercase font-black">{currencySymbol}{cart.totals.tax.toFixed(0)}</span>
+                                    </div>
+
+                                    {cart.totals.discount > 0 && (
+                                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-pink-400">
+                                            <span>Discount</span>
+                                            <span className="text-xs font-black">-{currencySymbol}{cart.totals.discount.toFixed(0)}</span>
+                                        </div>
+                                    )}
                                 </div>
 
-                                <div className="flex justify-between text-gray-700">
-                                    <span className="font-medium">Tax</span>
-                                    <span className="font-semibold">{getCurrencySymbol(currency)}{cart.totals.tax.toFixed(2)}</span>
-                                </div>
-
-                                <div className="border-t-2 border-gray-200 pt-4">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-lg font-bold text-gray-900">Total</span>
-                                        <span className="text-3xl font-bold text-indigo-600">{getCurrencySymbol(currency)}{cart.totals.total.toFixed(2)}</span>
+                                <div className="mb-10">
+                                    <div className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1">
+                                        Total Amount
+                                    </div>
+                                    <div className="text-4xl font-black tracking-tighter leading-none">
+                                        {currencySymbol}{cart.totals.total.toFixed(0)}
                                     </div>
                                 </div>
-                            </div>
 
-                            <button
-                                onClick={handleCheckout}
-                                className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-4 px-6 rounded-xl font-bold text-lg text-center hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 duration-200"
-                            >
-                                Proceed to Checkout
-                            </button>
-
-                            <p className="text-sm text-gray-600 text-center mt-4 flex items-center justify-center gap-1">
-                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
-                                <span>Secure checkout</span>
-                            </p>
-
-                            <p className="text-sm text-gray-600 text-center mt-2">
-                                Checkout as guest or{' '}
-                                <Link
-                                    to="/login?redirect=/cart"
-                                    className="text-indigo-600 hover:text-indigo-700 font-bold transition-colors"
+                                <button
+                                    onClick={() => navigate('/checkout')}
+                                    className="w-full h-12 bg-white text-gray-900 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-gray-100 transition shadow-lg shadow-white/5 flex items-center justify-center gap-2 group mb-6"
                                 >
-                                    sign in
-                                </Link>{' '}
-                                for faster checkout
-                            </p>
+                                    Proceed to Checkout <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                </button>
 
-                            <Link
-                                to="/books"
-                                className="flex items-center justify-center gap-2 text-center text-indigo-600 hover:text-indigo-700 font-semibold mt-6 hover:bg-indigo-50 py-2 rounded-xl transition-all"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                                </svg>
-                                <span>Continue Shopping</span>
-                            </Link>
+                                <div className="flex items-center justify-center gap-3 text-gray-400 border-t border-white/5 pt-6">
+                                    <Shield className="w-4 h-4 text-blue-400" />
+                                    <span className="text-[9px] font-black uppercase tracking-widest">Protected Checkout</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
     );
 }
-
-
-
-

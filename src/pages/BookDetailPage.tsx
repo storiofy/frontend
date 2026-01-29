@@ -1,8 +1,11 @@
-import { useParams } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '@lib/api/client';
-import BookImageGallery from '@components/book/BookImageGallery';
-import BookDetails from '@components/book/BookDetails';
+import { Star, Package, Truck, RotateCcw, ChevronDown, Sparkles } from 'lucide-react';
+import { ImageWithFallback } from '@components/figma/ImageWithFallback';
+import { useCurrencyStore } from '@store/currencyStore';
+import { getCurrencySymbol } from '@lib/utils/currency';
 
 interface BookDetailResponse {
     id: string;
@@ -50,111 +53,222 @@ const fetchBookBySlug = async (slug: string): Promise<BookDetailResponse> => {
 
 export default function BookDetailPage() {
     const { slug } = useParams<{ slug: string }>();
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+    const [showFAQs, setShowFAQs] = useState(false);
+    const { currency } = useCurrencyStore();
 
     const { data: book, isLoading, error } = useQuery<BookDetailResponse>({
-        queryKey: ['book', slug],
+        queryKey: ['book', slug, currency],
         queryFn: () => fetchBookBySlug(slug!),
         enabled: !!slug,
-        staleTime: 10 * 60 * 1000, // 10 minutes
+        staleTime: 10 * 60 * 1000,
     });
+
+    // Initialize defaults when data is loaded
+    if (book && !selectedImage) setSelectedImage(book.coverImageUrl);
+    if (book && !selectedLanguage) setSelectedLanguage(book.languageCode);
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                        {/* Loading Skeleton - Left */}
-                        <div className="space-y-4">
-                            <div className="bg-gray-200 rounded-2xl animate-pulse" style={{ height: '600px' }} />
-                            <div className="grid grid-cols-5 gap-2">
-                                {[1, 2, 3, 4, 5].map((i) => (
-                                    <div key={i} className="bg-gray-200 rounded-xl animate-pulse h-20" />
-                                ))}
-                            </div>
-                        </div>
-                        {/* Loading Skeleton - Right */}
-                        <div className="space-y-6">
-                            <div className="bg-gray-200 rounded-xl animate-pulse h-10" style={{ width: '70%' }} />
-                            <div className="bg-gray-200 rounded-xl animate-pulse h-8" style={{ width: '40%' }} />
-                            <div className="space-y-2">
-                                <div className="bg-gray-200 rounded-xl animate-pulse h-4" />
-                                <div className="bg-gray-200 rounded-xl animate-pulse h-4" />
-                                <div className="bg-gray-200 rounded-xl animate-pulse h-4" style={{ width: '80%' }} />
-                            </div>
-                            <div className="bg-gray-200 rounded-2xl animate-pulse h-24" />
-                        </div>
-                    </div>
-                </div>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600"></div>
             </div>
         );
     }
 
-    if (error) {
+    if (error || !book) {
         return (
-            <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center p-4">
-                <div className="text-center max-w-md">
-                    <div className="inline-flex items-center justify-center w-24 h-24 bg-red-100 rounded-full mb-6">
-                        <svg className="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                    </div>
-                    <h2 className="text-3xl font-bold text-gray-900 mb-3">Book Not Found</h2>
-                    <p className="text-gray-600 mb-8">
-                        The book you're looking for doesn't exist or has been removed.
-                    </p>
-                    <a
-                        href="/books"
-                        className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:from-indigo-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 duration-200"
-                    >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                        </svg>
-                        <span>Browse All Books</span>
-                    </a>
-                </div>
+            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+                <h2 className="text-2xl font-bold mb-4">Book Not Found</h2>
+                <Link to="/books" className="text-pink-600 hover:underline">Back to Books</Link>
             </div>
         );
     }
 
-    if (!book) {
-        return null;
-    }
+    const allImages = [
+        { url: book.coverImageUrl, type: 'cover' },
+        ...book.images.map(img => ({ url: img.imageUrl, type: img.imageType }))
+    ].filter((v, i, a) => a.findIndex(t => t.url === v.url) === i);
+
+    const features = [
+        `For children ${book.ageMin}-${book.ageMax} years`,
+        `Personalized with the child's name`,
+        `Features ${book.pageCount} heartwarming stories`,
+        `High-quality printed book`
+    ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Left Column - Image Gallery (35-40%) */}
-                    <div className="lg:w-full">
-                        <BookImageGallery
-                            coverImageUrl={book.coverImageUrl}
-                            previewVideoUrl={book.previewVideoUrl}
-                            images={book.images}
-                        />
+        <div className="min-h-screen bg-gray-50">
+            <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+                <div className="grid lg:grid-cols-2 gap-8">
+                    {/* Left: Image Gallery */}
+                    <div>
+                        <div className="bg-white rounded-2xl p-4 shadow-sm mb-4">
+                            <ImageWithFallback
+                                src={selectedImage || book.coverImageUrl}
+                                alt={book.title}
+                                className="w-full aspect-[2/4] object-contain rounded-xl"
+                            />
+                        </div>
+                        <div className="grid grid-cols-4 gap-3">
+                            {allImages.slice(0, 4).map((img, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => setSelectedImage(img.url)}
+                                    className={`border-2 rounded-xl overflow-hidden transition-all ${selectedImage === img.url ? 'border-pink-500 ring-2 ring-pink-100' : 'border-gray-200 hover:border-pink-200'}`}
+                                >
+                                    <ImageWithFallback
+                                        src={img.url}
+                                        alt={`${book.title} ${index + 1}`}
+                                        className="w-full aspect-square object-cover"
+                                    />
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
-                    {/* Right Column - Product Details (60-65%) */}
-                    <div className="lg:w-full">
-                        <BookDetails
-                            slug={book.slug}
-                            title={book.title}
-                            description={book.description}
-                            shortDescription={book.shortDescription}
-                            ageMin={book.ageMin}
-                            ageMax={book.ageMax}
-                            idealFor={book.idealFor}
-                            genre={book.genre}
-                            pageCount={book.pageCount}
-                            basePrice={book.basePrice}
-                            discountPercentage={book.discountPercentage}
-                            finalPrice={book.finalPrice}
-                            languageCode={book.languageCode}
-                            availableLanguages={book.languages}
-                            specifications={book.specifications}
-                        />
+                    {/* Right: Product Details */}
+                    <div className="space-y-6">
+                        <div className="bg-white rounded-2xl p-6 shadow-sm">
+                            <div className="flex items-center gap-2 mb-2 text-pink-600 font-semibold text-sm">
+                                <Sparkles className="w-4 h-4" />
+                                <span>Personalized Storybook</span>
+                            </div>
+                            <h1 className="text-3xl font-bold text-gray-900 mb-3">{book.title}</h1>
+
+                            {/* Rating */}
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="flex items-center gap-0.5">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                                    ))}
+                                </div>
+                                <span className="font-bold text-sm">4.9</span>
+                                <span className="text-gray-400 text-xs">(128 reviews)</span>
+                            </div>
+
+                            <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+                                {book.shortDescription || book.description}
+                            </p>
+
+                            {/* Features */}
+                            <div className="flex flex-wrap gap-2 mb-6">
+                                {features.map((feature, i) => (
+                                    <span key={i} className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs font-medium">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                                        {feature}
+                                    </span>
+                                ))}
+                            </div>
+
+                            {/* Specs Grid */}
+                            <div className="bg-gradient-to-br from-pink-50 to-blue-50 rounded-xl p-4 mb-6">
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                                    <div>
+                                        <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Ages</p>
+                                        <p className="text-xs font-bold">{book.ageMin}-{book.ageMax}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Pages</p>
+                                        <p className="text-xs font-bold">{book.pageCount}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Cover</p>
+                                        <p className="text-xs font-bold">Hardcover</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-gray-500 uppercase font-bold mb-1">Ships</p>
+                                        <p className="text-xs font-bold">Worldwide</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Language Selector */}
+                            {book.languages.length > 0 && (
+                                <div className="mb-6">
+                                    <label className="text-xs font-bold text-gray-700 mb-2 block uppercase tracking-wide">Select Language</label>
+                                    <select
+                                        value={selectedLanguage || ''}
+                                        onChange={(e) => setSelectedLanguage(e.target.value)}
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                    >
+                                        {book.languages.map(lang => (
+                                            <option key={lang.languageCode} value={lang.languageCode} disabled={!lang.isAvailable}>
+                                                {lang.titleTranslated} {!lang.isAvailable && '(Soon)'}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            {/* Price and CTA */}
+                            <div className="border-t pt-6">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <span className="text-4xl font-bold text-pink-600">{getCurrencySymbol(currency)}{book.finalPrice}</span>
+                                    {book.basePrice > book.finalPrice && (
+                                        <span className="text-xl text-gray-400 line-through">{getCurrencySymbol(currency)}{book.basePrice}</span>
+                                    )}
+                                    {book.discountPercentage && (
+                                        <span className="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full font-bold">
+                                            SAVE {book.discountPercentage}%
+                                        </span>
+                                    )}
+                                </div>
+                                <Link
+                                    to={`/books/${slug}/personalise?language=${selectedLanguage}`}
+                                    className="w-full bg-gradient-to-r from-pink-500 to-blue-500 text-white py-4 rounded-xl font-bold text-lg hover:from-pink-600 hover:to-blue-600 transition-all flex items-center justify-center gap-2 shadow-lg shadow-pink-100"
+                                >
+                                    <span>Start Personalizing Now</span>
+                                </Link>
+                                <p className="text-center text-xs text-gray-400 mt-3 flex items-center justify-center gap-1">
+                                    <RotateCcw className="w-3 h-3" />
+                                    <span>30-day money-back guarantee</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Trust Badges */}
+                        <div className="grid grid-cols-3 gap-4">
+                            <div className="bg-white p-3 rounded-xl shadow-sm text-center">
+                                <Package className="w-5 h-5 text-pink-500 mx-auto mb-1" />
+                                <p className="text-[10px] font-bold text-gray-700">Premium Quality</p>
+                            </div>
+                            <div className="bg-white p-3 rounded-xl shadow-sm text-center">
+                                <Truck className="w-5 h-5 text-blue-500 mx-auto mb-1" />
+                                <p className="text-[10px] font-bold text-gray-700">Free Shipping</p>
+                            </div>
+                            <div className="bg-white p-3 rounded-xl shadow-sm text-center">
+                                <RotateCcw className="w-5 h-5 text-pink-500 mx-auto mb-1" />
+                                <p className="text-[10px] font-bold text-gray-700">Easy Returns</p>
+                            </div>
+                        </div>
+
+                        {/* Collapsible FAQ */}
+                        <div className="bg-white rounded-2xl p-4 shadow-sm">
+                            <button
+                                onClick={() => setShowFAQs(!showFAQs)}
+                                className="w-full flex items-center justify-between text-sm font-bold text-gray-900"
+                            >
+                                <span>Product Information & FAQs</span>
+                                <ChevronDown className={`w-4 h-4 transition-transform ${showFAQs ? 'rotate-180' : ''}`} />
+                            </button>
+                            {showFAQs && (
+                                <div className="mt-4 space-y-4 text-xs text-gray-600 leading-relaxed border-t pt-4">
+                                    <div>
+                                        <p className="font-bold text-gray-900 mb-1">What can I personalize?</p>
+                                        <p>You can customize the story with your child's name, gender, physical appearance, and even write a special dedication message.</p>
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-gray-900 mb-1">Can I see a preview?</p>
+                                        <p>Absolutely! After you finish the personalization steps, we'll show you a full digital preview of every page in your book.</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
     );
 }

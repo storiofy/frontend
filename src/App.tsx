@@ -16,6 +16,7 @@ import CartPage from '@pages/CartPage';
 import CheckoutPage from '@pages/CheckoutPage';
 import OrderConfirmationPage from '@pages/OrderConfirmationPage';
 import ProfilePage from '@pages/ProfilePage';
+import GiftsPage from '@pages/GiftsPage';
 
 // Layout Components
 import Header from '@components/layout/Header';
@@ -64,6 +65,7 @@ function AppContent() {
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order-confirmation/:orderNumber" element={<OrderConfirmationPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/gifts" element={<GiftsPage />} />
           </Routes>
         </main>
         <Footer />

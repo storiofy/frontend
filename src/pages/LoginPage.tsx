@@ -1,176 +1,102 @@
 import LoginForm from '@components/auth/LoginForm';
 import { Link } from 'react-router-dom';
+import { Star, Heart, Bookmark } from 'lucide-react';
+import { motion } from 'framer-motion';
+import Logo from '@components/layout/Logo';
 
 export default function LoginPage() {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-cyan-50 relative flex items-center justify-center p-4">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-5">
-                <div
-                    className="absolute inset-0"
-                    style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l30 30-30 30L0 30z' fill='%234F46E5' fill-opacity='0.3'/%3E%3C/svg%3E")`,
-                    }}
-                />
-            </div>
+        <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 relative flex items-center justify-center p-6 md:p-12 overflow-hidden">
 
-            {/* Floating Shapes */}
+            {/* Background Magic */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-20 left-10 w-32 h-32 bg-indigo-400/20 rounded-full blur-3xl animate-pulse"></div>
-                <div className="absolute bottom-20 right-10 w-40 h-40 bg-blue-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-                <div className="absolute top-1/2 left-1/3 w-24 h-24 bg-cyan-400/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-pink-200/20 rounded-full blur-[120px] animate-pulse"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-200/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }}></div>
             </div>
 
-            <div className="relative w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-                {/* Left Panel - Promotional Content */}
-                <div className="hidden lg:flex flex-col items-start justify-center space-y-8">
-                    {/* Main Illustration Card */}
-                    <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-10 w-full relative overflow-hidden">
-                        {/* Decorative Elements */}
-                        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-indigo-500/20 to-blue-500/20 rounded-full blur-3xl"></div>
+            <div className="relative w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
 
-                        {/* Content */}
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-3 mb-6">
-                                <img
-                                    src="/logo.png"
-                                    alt="Storiofy Logo"
-                                    className="w-12 h-12 object-contain"
-                                />
-                                <h2 className="text-3xl font-extrabold tracking-tight text-vibrant-brand">
-                                    Storiofy
-                                </h2>
+                {/* Left Panel - Story Magic */}
+                <div className="hidden lg:flex flex-col space-y-12">
+                    <div className="space-y-6">
+                        <Link to="/" className="inline-flex items-center gap-2 group">
+                            <div className="group-hover:scale-110 transition-transform">
+                                <Logo />
                             </div>
+                            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-pink-600 bg-clip-text text-transparent uppercase tracking-tighter">Storiofy</span>
+                        </Link>
 
-                            <h3 className="text-4xl font-bold text-gray-900 mb-4">
-                                Welcome Back!
-                            </h3>
+                        <h2 className="text-6xl font-black text-gray-900 tracking-tighter leading-[0.9]">
+                            Continue the <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-500 italic">Adventure</span>
+                        </h2>
 
-                            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                                Continue your journey of creating magical, personalized stories for your loved ones.
-                            </p>
-
-                            {/* Feature List */}
-                            <div className="space-y-4">
-                                <div className="flex items-start gap-3">
-                                    <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mt-0.5">
-                                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold text-gray-900">Personalized Stories</h4>
-                                        <p className="text-sm text-gray-600">Create unique books with your child as the hero</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-3">
-                                    <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mt-0.5">
-                                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold text-gray-900">Premium Quality</h4>
-                                        <p className="text-sm text-gray-600">High-quality printing and durable materials</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-start gap-3">
-                                    <div className="flex-shrink-0 w-6 h-6 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mt-0.5">
-                                        <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold text-gray-900">Fast Delivery</h4>
-                                        <p className="text-sm text-gray-600">Get your books delivered quickly and safely</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Decorative Book Illustration */}
-                            <div className="mt-8 flex justify-center">
-                                <div className="relative">
-                                    <div className="w-32 h-40 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg shadow-xl transform rotate-3">
-                                        <div className="absolute inset-0 flex items-center justify-center text-white text-4xl">
-                                            📚
-                                        </div>
-                                    </div>
-                                    <div className="absolute -top-2 -right-2 text-3xl animate-bounce">✨</div>
-                                    <div className="absolute -bottom-2 -left-2 text-2xl animate-pulse">⭐</div>
-                                </div>
-                            </div>
-                        </div>
+                        <p className="text-lg font-bold text-gray-400 max-w-sm leading-relaxed">
+                            Sign in to access your saved stories, track your magical packages, and create new memories.
+                        </p>
                     </div>
 
-                    {/* Stats */}
-                    <div className="grid grid-cols-3 gap-4 w-full">
-                        <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center">
-                            <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-600">10k+</div>
-                            <div className="text-xs text-gray-600 mt-1">Happy Families</div>
-                        </div>
-                        <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center">
-                            <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-600">50+</div>
-                            <div className="text-xs text-gray-600 mt-1">Unique Stories</div>
-                        </div>
-                        <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center">
-                            <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-600">4.9★</div>
-                            <div className="text-xs text-gray-600 mt-1">Rating</div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Right Panel - Login Form */}
-                <div className="flex items-center justify-center">
-                    <div className="w-full max-w-md">
-                        {/* Mobile Logo */}
-                        <div className="lg:hidden text-center mb-8">
-                            <div className="inline-flex items-center gap-3 mb-4">
-                                <img
-                                    src="/logo.png"
-                                    alt="Storiofy Logo"
-                                    className="w-12 h-12 object-contain"
-                                />
-                                <h1 className="text-3xl font-extrabold tracking-tight text-vibrant-brand">
-                                    Storiofy
-                                </h1>
-                            </div>
-                            <p className="text-gray-600">Welcome back! Sign in to continue</p>
-                        </div>
-
-                        <LoginForm />
-
-                        {/* Additional Links */}
-                        <div className="mt-6 text-center space-y-3">
-                            <p className="text-sm text-gray-600">
-                                Don't have an account?{' '}
-                                <Link
-                                    to="/register"
-                                    className="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors"
-                                >
-                                    Sign up free
-                                </Link>
-                            </p>
-                            <Link
-                                to="/"
-                                className="block text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                    <div className="grid grid-cols-1 gap-6">
+                        {[
+                            { icon: Star, color: 'text-amber-400', title: 'Your Favorites', desc: 'Quickly access stories you love' },
+                            { icon: Bookmark, color: 'text-blue-500', title: 'Saved Progress', desc: 'Pick up exactly where you left off' },
+                            { icon: Heart, color: 'text-pink-500', title: 'Gift History', desc: 'Manage your previous personalized gifts' }
+                        ].map((feature, idx) => (
+                            <motion.div
+                                key={idx}
+                                initial={{ x: -20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.2 + idx * 0.1 }}
+                                className="flex items-start gap-4 p-6 rounded-3xl bg-white/50 backdrop-blur-sm border border-white/50 shadow-sm"
                             >
-                                ← Back to home
-                            </Link>
+                                <div className={`w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-sm ${feature.color}`}>
+                                    <feature.icon className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h4 className="font-black text-gray-900 uppercase tracking-widest text-xs">{feature.title}</h4>
+                                    <p className="text-xs font-bold text-gray-400 mt-1">{feature.desc}</p>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center gap-6 pt-4">
+                        <div className="flex -space-x-3">
+                            {[1, 2, 3, 4].map(i => (
+                                <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-100 overflow-hidden">
+                                    <img src={`https://i.pravatar.cc/150?u=${i}`} alt="user" className="w-full h-full object-cover" />
+                                </div>
+                            ))}
                         </div>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
+                            <span className="text-gray-900">10,000+</span> Happy Families <br />
+                            <span className="text-pink-500">Creating Magic Together</span>
+                        </p>
                     </div>
                 </div>
-            </div>
 
-            {/* Support Chat Widget */}
-            <Link
-                to="/support"
-                className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-full shadow-xl hover:shadow-2xl transition-all flex items-center justify-center text-white hover:scale-110 transform duration-200"
-                aria-label="Support"
-            >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-            </Link>
+                {/* Right Panel - Form Area */}
+                <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className="flex flex-col"
+                >
+                    <div className="lg:hidden text-center mb-10">
+                        <Link to="/" className="inline-flex items-center gap-2 mb-4">
+                            <Logo />
+                            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-pink-600 bg-clip-text text-transparent uppercase tracking-tighter">Storiofy</span>
+                        </Link>
+                    </div>
+
+                    <LoginForm />
+
+                    <div className="mt-8 text-center no-print">
+                        <Link to="/" className="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-gray-900 transition flex items-center justify-center gap-2">
+                            Back to home
+                        </Link>
+                    </div>
+                </motion.div>
+            </div>
         </div>
     );
 }
