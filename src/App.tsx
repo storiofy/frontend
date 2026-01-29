@@ -22,6 +22,8 @@ import GiftsPage from '@pages/GiftsPage';
 import Header from '@components/layout/Header';
 import Footer from '@components/layout/Footer';
 import ScrollToTop from '@components/common/ScrollToTop';
+import Analytics from '@components/common/Analytics';
+import SEO from '@components/common/SEO';
 
 // Store
 import { useAuthStore } from '@store/authStore';
@@ -47,6 +49,8 @@ function AppContent() {
 
   return (
     <BrowserRouter>
+      <Analytics />
+      <SEO />
       <ScrollToTop />
       <div className="min-h-screen flex flex-col">
         <Header />

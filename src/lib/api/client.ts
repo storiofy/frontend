@@ -18,29 +18,26 @@ function getSessionId(): string {
     return sessionId;
 }
 
-// Request interceptor - Add auth token and session ID
+// Request interceptor - Add standard headers
 apiClient.interceptors.request.use(
     config => {
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
+        // Auth token is now handled via HttpOnly Cookies (handled by browser automatically)
+        // We no longer need to manually attach Authorization header for standard requests
+        // unless we are in a specific environment that requires it (e.g. mobile app).
+        // Since we are moving to cookies, we let the browser handle it with credentials: true
+        config.withCredentials = true;
 
-        // Always include session ID (for both guest and authenticated users)
-        // Backend will use userId if authenticated, otherwise sessionId
+        // Still include Session ID for guest tracking
         const sessionId = getSessionId();
         config.headers['X-Session-Id'] = sessionId;
 
-        // Add global currency if not explicitly set in params
+        // Add standard currency header
         try {
             const currencySettings = localStorage.getItem('Storiofy_currency_settings');
             if (currencySettings) {
                 const { state } = JSON.parse(currencySettings);
                 if (state?.currency) {
-                    config.params = {
-                        ...config.params,
-                        currency: state.currency
-                    };
+                    config.headers['X-Currency'] = state.currency;
                 }
             }
         } catch (e) {
@@ -65,34 +62,25 @@ apiClient.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
-                const refreshToken = localStorage.getItem('refreshToken');
-
-                // If no refresh token, this is a guest user - don't redirect to login
-                if (!refreshToken) {
-                    return Promise.reject(error);
-                }
-
-                const response = await axios.post(
-                    `${import.meta.env.VITE_API_URL}/auth/refresh`,
-                    { refreshToken }
+                // Call refresh endpoint - it will read the HttpOnly refreshToken cookie
+                // and set a new accessToken cookie
+                await axios.post(
+                    `${import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1'}/auth/refresh`,
+                    {},
+                    { withCredentials: true }
                 );
 
-                const { accessToken } = response.data;
-                localStorage.setItem('accessToken', accessToken);
-
-                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+                // Retry original request
                 return apiClient(originalRequest);
             } catch (refreshError) {
-                // Refresh failed - only redirect if there was a refresh token (authenticated user)
-                const hadRefreshToken = !!localStorage.getItem('refreshToken');
-                localStorage.removeItem('accessToken');
-                localStorage.removeItem('refreshToken');
+                // Refresh failed
+                // Redirect to login if needed, or just let the error propagate
+                // Only redirect if we thought we were logged in? 
+                // Since we don't have local tokens, we might check a local "isLoggedIn" flag or similar
+                // For now, if refresh fails, we assume session is dead.
 
-                // Only redirect to login if user was previously authenticated
-                // Guest users should not be redirected
-                if (hadRefreshToken) {
-                    window.location.href = '/login';
-                }
+                // Optional: Clear any client-side user state here
+                window.location.href = '/login';
                 return Promise.reject(refreshError);
             }
         }
