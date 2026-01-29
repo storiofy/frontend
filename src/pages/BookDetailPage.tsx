@@ -6,6 +6,7 @@ import { Star, Package, Truck, RotateCcw, ChevronDown, Sparkles } from 'lucide-r
 import { ImageWithFallback } from '@components/figma/ImageWithFallback';
 import { useCurrencyStore } from '@store/currencyStore';
 import { getCurrencySymbol } from '@lib/utils/currency';
+import SEO from '@components/common/SEO';
 
 interface BookDetailResponse {
     id: string;
@@ -100,6 +101,16 @@ export default function BookDetailPage() {
 
     return (
         <div className="min-h-screen bg-gray-50">
+            <SEO
+                title={book.title}
+                description={book.shortDescription || book.description}
+                image={book.coverImageUrl}
+                type="book"
+                price={{
+                    amount: book.finalPrice,
+                    currency: currency
+                }}
+            />
             <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
                 <div className="grid lg:grid-cols-2 gap-8">
                     {/* Left: Image Gallery */}

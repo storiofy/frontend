@@ -6,6 +6,7 @@ import { Filter, Search } from 'lucide-react';
 import { ImageWithFallback } from '@components/figma/ImageWithFallback';
 import { useCurrencyStore } from '@store/currencyStore';
 import { getCurrencySymbol } from '@lib/utils/currency';
+import SEO from '@components/common/SEO';
 
 interface BookListItem {
     id: string;
@@ -109,6 +110,10 @@ export default function BooksPage() {
 
     return (
         <div className="bg-gray-50 flex-1">
+            <SEO
+                title="Our Collection - Personalized Storybooks"
+                description="Browse our collection of magical personalized storybooks for children of all ages. Custom names, avatars, and dedications."
+            />
             {/* Page Header */}
             <div className="bg-gradient-to-r from-pink-500 to-blue-400 text-white py-6">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6">
