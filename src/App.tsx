@@ -17,6 +17,8 @@ import CheckoutPage from '@pages/CheckoutPage';
 import OrderConfirmationPage from '@pages/OrderConfirmationPage';
 import ProfilePage from '@pages/ProfilePage';
 import GiftsPage from '@pages/GiftsPage';
+import ForgotPasswordPage from '@pages/ForgotPasswordPage';
+import ResetPasswordPage from '@pages/ResetPasswordPage';
 
 // Layout Components
 import Header from '@components/layout/Header';
@@ -65,6 +67,8 @@ function AppContent() {
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/order-confirmation/:orderNumber" element={<OrderConfirmationPage />} />

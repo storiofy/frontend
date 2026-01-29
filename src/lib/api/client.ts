@@ -89,4 +89,9 @@ apiClient.interceptors.response.use(
     }
 );
 
+export const authApi = {
+    forgotPassword: (email: string) => apiClient.post('/auth/forgot-password', { email }),
+    resetPassword: (data: any) => apiClient.post('/auth/reset-password', data),
+};
+
 export default apiClient;
