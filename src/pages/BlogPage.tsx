@@ -1,8 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '@lib/api/client';
 import BlogPostCard from '@components/blog/BlogPostCard';
+import { Search, Sparkles, BookOpen, ChevronRight, ChevronLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Logo from '@components/layout/Logo';
 
 interface BlogPost {
     id: string;
@@ -26,20 +29,12 @@ interface BlogResponse {
     };
 }
 
-// Debounce hook
 function useDebounce<T>(value: T, delay: number): T {
     const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
     useEffect(() => {
-        const handler = setTimeout(() => {
-            setDebouncedValue(value);
-        }, delay);
-
-        return () => {
-            clearTimeout(handler);
-        };
+        const handler = setTimeout(() => setDebouncedValue(value), delay);
+        return () => clearTimeout(handler);
     }, [value, delay]);
-
     return debouncedValue;
 }
 
@@ -50,48 +45,35 @@ const fetchBlogPosts = async (params: any): Promise<BlogResponse> => {
 
 export default function BlogPage() {
     const [searchParams, setSearchParams] = useSearchParams();
-
-    // Get initial values from URL params
     const [search, setSearch] = useState(searchParams.get('search') || '');
     const [category, setCategory] = useState<string | null>(searchParams.get('category') || null);
     const [page, setPage] = useState(parseInt(searchParams.get('page') || '1'));
-
-    // Debounce search input
     const debouncedSearch = useDebounce(search, 300);
 
-    // Build API params
     const apiParams = useMemo(() => {
-        const params: any = {
-            page,
-            limit: 12,
-        };
-
+        const params: any = { page, limit: 12 };
         if (debouncedSearch) params.search = debouncedSearch;
         if (category) params.category = category;
-
         return params;
     }, [debouncedSearch, category, page]);
 
-    // Fetch blog posts
-    const { data, isLoading, error, isFetching } = useQuery<BlogResponse>({
+    const { data, isLoading } = useQuery<BlogResponse>({
         queryKey: ['blog-posts', apiParams],
         queryFn: () => fetchBlogPosts(apiParams),
-        staleTime: 5 * 60 * 1000, // 5 minutes
+        staleTime: 5 * 60 * 1000,
     });
 
-    // Update URL params when filters change
     useEffect(() => {
         const params = new URLSearchParams();
         if (debouncedSearch) params.set('search', debouncedSearch);
         if (category) params.set('category', category);
         if (page > 1) params.set('page', page.toString());
-
         setSearchParams(params, { replace: true });
     }, [debouncedSearch, category, page, setSearchParams]);
 
     const handleSearchChange = (value: string) => {
         setSearch(value);
-        setPage(1); // Reset to first page on new search
+        setPage(1);
     };
 
     const handleCategoryChange = (value: string | null) => {
@@ -108,193 +90,153 @@ export default function BlogPage() {
     const posts = data?.items || [];
     const pagination = data?.pagination;
 
-    // Available categories (in production, this would come from API)
     const categories = [
-        { value: null, label: 'All Categories' },
-        { value: 'parenting', label: 'Parenting Tips' },
-        { value: 'education', label: 'Education' },
-        { value: 'stories', label: 'Stories' },
-        { value: 'reviews', label: 'Reviews' },
-        { value: 'news', label: 'News & Updates' },
+        { value: null, label: 'All Stories' },
+        { value: 'parenting', label: 'Parenting' },
+        { value: 'education', label: 'Magic Learning' },
+        { value: 'stories', label: 'Wonder Tales' },
+        { value: 'lifestyle', label: 'Lifestyle' }
     ];
 
     return (
-        <div className="min-h-screen bg-white">
-            {/* Hero Section */}
-            <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white py-12 lg:py-16">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center">
-                        <h1 className="text-4xl lg:text-5xl font-bold mb-4">
-                            Storiofy Blog
-                        </h1>
-                        <p className="text-xl lg:text-2xl text-purple-100">
-                            Stories, tips, and inspiration for creating magical moments
-                        </p>
-                    </div>
+        <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 py-16 px-4">
+            <div className="max-w-7xl mx-auto">
+
+                {/* Hero */}
+                <div className="text-center mb-16 space-y-4">
+                    <Link to="/" className="inline-flex items-center gap-2 justify-center mb-8 group">
+                        <Logo />
+                        <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-pink-600 bg-clip-text text-transparent uppercase tracking-tighter">Storiofy</span>
+                    </Link>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-pink-50 rounded-full text-pink-500 mb-2"
+                    >
+                        <Sparkles className="w-4 h-4" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Enchanted Journal</span>
+                    </motion.div>
+                    <motion.h1
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="text-6xl font-black text-gray-900 tracking-tighter leading-none"
+                    >
+                        Storiofy <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-500">Insights</span>
+                    </motion.h1>
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-lg font-bold text-gray-400 max-w-2xl mx-auto"
+                    >
+                        Stories behind the stories. Discover inspiration, parenting tips, and the magic of personalization.
+                    </motion.p>
                 </div>
-            </div>
 
-            {/* Filters Section */}
-            <div className="bg-white border-b border-gray-200 sticky top-16 z-40">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                    <div className="flex flex-col lg:flex-row gap-4 items-center">
-                        {/* Search Bar */}
-                        <div className="flex-1 w-full lg:w-auto">
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg
-                                        className="h-5 w-5 text-gray-400"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                                        />
-                                    </svg>
-                                </div>
-                                <input
-                                    type="text"
-                                    value={search}
-                                    onChange={(e) => handleSearchChange(e.target.value)}
-                                    placeholder="Search blog posts..."
-                                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Category Filter */}
-                        <div className="flex items-center gap-3">
-                            <select
-                                value={category || ''}
-                                onChange={(e) => handleCategoryChange(e.target.value || null)}
-                                className="px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                            >
-                                {categories.map((cat) => (
-                                    <option key={cat.value || 'all'} value={cat.value || ''}>
-                                        {cat.label}
-                                    </option>
-                                ))}
-                            </select>
-
-                            {(search || category) && (
-                                <button
-                                    onClick={handleClearFilters}
-                                    className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium"
-                                >
-                                    Clear Filters
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                {/* Results Count */}
-                {!isLoading && pagination && (
-                    <div className="mb-6 text-gray-600">
-                        Showing {posts.length} of {pagination.total} posts
-                    </div>
-                )}
-
-                {/* Loading State */}
-                {isLoading && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {[...Array(6)].map((_, i) => (
-                            <div
-                                key={i}
-                                className="bg-gray-200 rounded-xl animate-pulse"
-                                style={{ height: '400px' }}
+                {/* Search & Filter Bar */}
+                <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 p-4 md:p-6 mb-12">
+                    <div className="flex flex-col lg:flex-row gap-6 items-center">
+                        <div className="flex-1 w-full relative group">
+                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-pink-500 transition-colors" />
+                            <input
+                                value={search}
+                                onChange={(e) => handleSearchChange(e.target.value)}
+                                className="w-full h-14 pl-16 pr-8 rounded-2xl bg-gray-50 border-2 border-transparent focus:border-pink-500 focus:bg-white transition-all outline-none font-bold text-gray-900"
+                                placeholder="Search the magic archives..."
                             />
-                        ))}
+                        </div>
+                        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 w-full lg:w-auto scrollbar-hide">
+                            {categories.map((cat, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => handleCategoryChange(cat.value)}
+                                    className={`h-12 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest whitespace-nowrap transition-all ${category === cat.value
+                                        ? 'bg-gray-900 text-white shadow-lg'
+                                        : 'bg-white border-2 border-gray-100 text-gray-400 hover:border-gray-200'
+                                        }`}
+                                >
+                                    {cat.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                )}
+                </div>
 
-                {/* Error State */}
-                {error && (
-                    <div className="text-center py-12">
-                        <p className="text-red-600 mb-4">
-                            Failed to load blog posts. Please try again later.
-                        </p>
-                        <button
-                            onClick={() => window.location.reload()}
-                            className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl hover:from-indigo-700 hover:to-blue-700 transition-colors"
+                {/* Blog Grid */}
+                <AnimatePresence mode="wait">
+                    {isLoading ? (
+                        <motion.div
+                            key="loading"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
                         >
-                            Retry
-                        </button>
-                    </div>
-                )}
-
-                {/* Blog Posts Grid */}
-                {!isLoading && !error && (
-                    <>
-                        {posts.length > 0 ? (
-                            <>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {posts.map((post) => (
-                                        <BlogPostCard
+                            {[1, 2, 3, 4, 5, 6].map(i => (
+                                <div key={i} className="bg-white rounded-[2.5rem] p-4 border border-gray-100 space-y-6 animate-pulse">
+                                    <div className="aspect-[4/3] bg-gray-100 rounded-[2rem]"></div>
+                                    <div className="px-4 space-y-4 pb-4">
+                                        <div className="h-4 bg-gray-100 rounded-full w-3/4"></div>
+                                        <div className="h-4 bg-gray-100 rounded-full w-1/2"></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="grid"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="space-y-12"
+                        >
+                            {posts.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    {posts.map((post, idx) => (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: idx * 0.1 }}
                                             key={post.id}
-                                            id={post.id}
-                                            slug={post.slug}
-                                            title={post.title}
-                                            excerpt={post.excerpt}
-                                            featuredImageUrl={post.featuredImageUrl}
-                                            publishedAt={post.publishedAt}
-                                            author={post.author}
-                                            category={post.category}
-                                            readTime={post.readTime}
-                                        />
+                                        >
+                                            <BlogPostCard {...post} />
+                                        </motion.div>
                                     ))}
                                 </div>
-
-                                {/* Pagination */}
-                                {pagination && pagination.totalPages > 1 && (
-                                    <div className="mt-12 flex justify-center items-center gap-2">
-                                        <button
-                                            onClick={() => setPage((p) => Math.max(1, p - 1))}
-                                            disabled={page === 1 || isFetching}
-                                            className="px-4 py-2 border border-gray-300 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-                                        >
-                                            Previous
-                                        </button>
-                                        <span className="px-4 py-2 text-gray-700">
-                                            Page {page} of {pagination.totalPages}
-                                        </span>
-                                        <button
-                                            onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
-                                            disabled={page === pagination.totalPages || isFetching}
-                                            className="px-4 py-2 border border-gray-300 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-                                        >
-                                            Next
-                                        </button>
+                            ) : (
+                                <div className="text-center py-24 bg-white rounded-[3rem] border border-gray-100">
+                                    <div className="w-20 h-20 bg-gray-50 rounded-[2rem] flex items-center justify-center mx-auto mb-6">
+                                        <BookOpen className="w-10 h-10 text-gray-200" />
                                     </div>
-                                )}
-                            </>
-                        ) : (
-                            <div className="text-center py-12">
-                                <p className="text-gray-600 text-lg mb-4">
-                                    No blog posts found matching your criteria.
-                                </p>
-                                <button
-                                    onClick={handleClearFilters}
-                                    className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl hover:from-indigo-700 hover:to-blue-700 transition-colors"
-                                >
-                                    Clear Filters
-                                </button>
-                            </div>
-                        )}
-                    </>
-                )}
+                                    <h3 className="text-2xl font-black text-gray-900 uppercase">Archive Empty</h3>
+                                    <p className="text-gray-400 font-bold mt-2">No tales match your current search.</p>
+                                    <button onClick={handleClearFilters} className="mt-8 text-[10px] font-black uppercase text-pink-500 underline">Clear search</button>
+                                </div>
+                            )}
+
+                            {pagination && pagination.totalPages > 1 && (
+                                <div className="flex justify-center items-center gap-4 pt-8">
+                                    <button
+                                        disabled={page === 1}
+                                        onClick={() => setPage(p => p - 1)}
+                                        className="h-12 w-12 rounded-2xl border-2 border-gray-100 flex items-center justify-center text-gray-400 hover:border-gray-200 hover:text-gray-900 disabled:opacity-30 transition"
+                                    >
+                                        <ChevronLeft className="w-5 h-5" />
+                                    </button>
+                                    <span className="text-xs font-black uppercase tracking-widest text-gray-900">Page {page} of {pagination.totalPages}</span>
+                                    <button
+                                        disabled={page === pagination.totalPages}
+                                        onClick={() => setPage(p => p + 1)}
+                                        className="h-12 w-12 rounded-2xl border-2 border-gray-100 flex items-center justify-center text-gray-400 hover:border-gray-200 hover:text-gray-900 disabled:opacity-30 transition"
+                                    >
+                                        <ChevronRight className="w-5 h-5" />
+                                    </button>
+                                </div>
+                            )}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );
 }
-
-
-
-

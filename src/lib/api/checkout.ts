@@ -44,7 +44,30 @@ export interface OrderItemResponse {
     bookId?: string;
     bookTitle?: string;
     bookSlug?: string;
+    bookCoverImageUrl?: string;
     personalizationId?: string;
+    bookImages?: {
+        id: string;
+        imageUrl: string;
+        imageType: string;
+        displayOrder: number;
+        altText?: string;
+    }[];
+    stickerId?: string;
+    stickerTitle?: string;
+    stickerSlug?: string;
+    personalizationId?: string;
+    personalization?: {
+        id: string;
+        childFirstName: string;
+        childAge: number;
+        gender: string;
+        childPhotoUrl: string;
+        languageCode: string;
+        status: string;
+        generatedBookUrl?: string;
+    };
+    personalizationChildFirstName?: string; // Keep for backward compatibility if needed, but preferred to use personalization object
     quantity: number;
     unitPrice: number;
     discountPercentage: number;
