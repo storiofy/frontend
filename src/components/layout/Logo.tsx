@@ -3,85 +3,40 @@
 export default function Logo() {
   return (
     <div className="relative w-9 h-9">
-      {/* Creative starburst design representing magic, AI creativity, and personalization */}
       <svg
-        viewBox="0 0 36 36"
-        fill="none"
-        className="w-9 h-9"
         xmlns="http://www.w3.org/2000/svg"
+
+        strokeMiterlimit="10"
+        style={{ fillRule: 'nonzero', clipRule: 'evenodd', strokeLinecap: 'round', strokeLinejoin: 'round' }}
+        viewBox="165.745 108.664 609.985 609.985"
+        className="w-9 h-9"
       >
-        {/* Outer starburst rays - gradient from blue to pink */}
-        <path
-          d="M18 0L19.5 8L18 4L16.5 8L18 0Z"
-          fill="url(#grad1)"
-        />
-        <path
-          d="M18 36L19.5 28L18 32L16.5 28L18 36Z"
-          fill="url(#grad1)"
-        />
-        <path
-          d="M0 18L8 19.5L4 18L8 16.5L0 18Z"
-          fill="url(#grad2)"
-        />
-        <path
-          d="M36 18L28 19.5L32 18L28 16.5L36 18Z"
-          fill="url(#grad2)"
-        />
-        <path
-          d="M6 6L12 12L8 8L12 10L6 6Z"
-          fill="url(#grad3)"
-        />
-        <path
-          d="M30 30L24 24L28 28L24 26L30 30Z"
-          fill="url(#grad3)"
-        />
-        <path
-          d="M6 30L12 24L8 28L10 24L6 30Z"
-          fill="url(#grad4)"
-        />
-        <path
-          d="M30 6L24 12L28 8L26 12L30 6Z"
-          fill="url(#grad4)"
-        />
-
-        {/* Center star */}
-        <circle cx="18" cy="18" r="8" fill="url(#centerGrad)" />
-        <circle cx="18" cy="18" r="5" fill="url(#innerGrad)" />
-
-        {/* Sparkle accents */}
-        <circle cx="18" cy="11" r="1.5" fill="#60A5FA" />
-        <circle cx="25" cy="18" r="1.5" fill="#EC4899" />
-        <circle cx="18" cy="25" r="1.5" fill="#A78BFA" />
-        <circle cx="11" cy="18" r="1.5" fill="#FBBF24" />
-
-        {/* Gradient definitions */}
         <defs>
-          <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#60A5FA" />
-            <stop offset="100%" stopColor="#EC4899" />
+          <linearGradient id="a" x1="0" x2="1" y1="0" y2="0" gradientTransform="matrix(598.531 0 0 598.531 171.472 413.656)" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="#f502fb" stopOpacity=".168" />
+            <stop offset="1" stopColor="#3400ff" stopOpacity=".571" />
           </linearGradient>
-          <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#A78BFA" />
-            <stop offset="100%" stopColor="#F472B6" />
+          <linearGradient id="b" x1="0" x2="1" y1="0" y2="0" gradientTransform="scale(157.591) rotate(26.335 -4.327 6.425)" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="#3fb8ff" />
+            <stop offset="1" stopColor="#ffa7ff" />
           </linearGradient>
-          <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FBBF24" />
-            <stop offset="100%" stopColor="#EC4899" />
+          <linearGradient id="c" x1="0" x2="1" y1="0" y2="0" gradientTransform="matrix(37.5926 34.0904 -33.8547 37.5926 437.048 374.836)" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="#59b3e9" />
+            <stop offset="1" stopColor="#ffa7f4" />
           </linearGradient>
-          <linearGradient id="grad4" x1="100%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#60A5FA" />
-            <stop offset="100%" stopColor="#A78BFA" />
-          </linearGradient>
-          <radialGradient id="centerGrad">
-            <stop offset="0%" stopColor="#F472B6" />
-            <stop offset="100%" stopColor="#60A5FA" />
-          </radialGradient>
-          <radialGradient id="innerGrad">
-            <stop offset="0%" stopColor="#FBBF24" />
-            <stop offset="50%" stopColor="#EC4899" />
-            <stop offset="100%" stopColor="#60A5FA" />
-          </radialGradient>
         </defs>
+        <path fill="#81a5ee" d="m277.654 540.578-5.824-10.648-10.648-5.823 10.648-5.823 5.824-10.648 5.823 10.648 10.648 5.823-10.648 5.823-5.823 10.648Z" />
+        <path fill="#af81ee" d="m567 227-8.784 2.478 2.479-8.783-2.479-8.784 8.784 2.478 8.784-2.478-2.479 8.784 2.479 8.783L567 227Z" />
+        <path fill="#fcdf77" d="m720.566 374.6-6.285-11.492-11.493-6.285 11.493-6.286 6.285-11.492 6.285 11.492 11.493 6.286-11.493 6.285-6.285 11.492Z" />
+        <path fill="#f9a2ff" d="m331.444 224.945-6.285-11.493-11.492-6.285 11.492-6.285 6.285-11.493 6.286 11.493 11.492 6.285-11.492 6.285-6.286 11.493Z" />
+        <path fill="#fcdf77" d="m414.692 649.678-4.315-7.889-7.889-4.315 7.889-4.315 4.315-7.89 4.315 7.89 7.89 4.315-7.89 4.315-4.315 7.889ZM695.85 539l-4.773-8.727-8.727-4.773 8.727-4.773L695.85 512l4.773 8.727 8.727 4.773-8.727 4.773L695.85 539ZM237.521 470.322l-3.447-6.303-6.303-3.447 6.303-3.447 3.447-6.303 3.447 6.303 6.303 3.447-6.303 3.447-3.447 6.303ZM624.5 231.167l-8.485-15.515-15.515-8.485 15.515-8.485 8.485-15.515 8.485 15.515 15.515 8.485-15.515 8.485-8.485 15.515Z" />
+        <path fill="#b88bf4" d="M672.534 285.672h12v12h-12v-12ZM660.534 297.672h12v12h-12v-12ZM588.75 584.795h12v12h-12v-12ZM600.25 596.795h12v12h-12v-12Z" />
+        <path fill="#f28bf4" d="M226.759 338.721h12v12h-12v-12Z" />
+        <path fill="#81a5ee" d="M238.454 350.721h12v12h-12v-12Z" />
+        <path fill="url(#a)" stroke="#f28bf4" strokeLinecap="butt" strokeWidth=".01" d="m261.088 503.272 145.059-88.889-147.022-85.604 165.427 39.719-43.43-164.492 88.889 145.06 85.604-147.022-39.719 165.426 164.491-43.429-145.059 88.889 147.022 85.603-165.427-39.718 43.43 164.491-88.889-145.06-85.603 147.023 39.718-165.427-164.491 43.43Z" />
+        <path fill="url(#b)" stroke="#f28bf4" strokeLinecap="butt" strokeWidth=".01" d="M470.755 712.583c-.137.974-1.546.97-1.678-.005l-29.996-221.189a.847.847 0 0 0-1.349-.563L259.377 625.041c-.786.592-1.779-.407-1.183-1.19l135.194-177.614a.847.847 0 0 0-.556-1.352l-221.021-31.211c-.974-.138-.97-1.546.005-1.679L393.005 382a.847.847 0 0 0 .563-1.349L259.352 202.296c-.591-.786.407-1.78 1.19-1.184l177.615 135.195a.847.847 0 0 0 1.352-.556L470.72 114.73c.138-.974 1.546-.971 1.678.005l29.996 221.189a.847.847 0 0 0 1.349.563l178.355-134.216c.786-.592 1.78.407 1.184 1.19L548.087 381.076a.847.847 0 0 0 .556 1.352l221.021 31.211c.974.137.97 1.546-.005 1.678L548.47 445.313a.847.847 0 0 0-.563 1.349l134.216 178.355c.592.786-.407 1.779-1.19 1.183L503.318 491.006a.847.847 0 0 0-1.352.556l-31.211 221.021Z" />
+        <path fill="#fff" stroke="#fff" strokeLinecap="butt" strokeWidth="1.147" d="M470.144 315.312c-.496.144-.972.281-1.469.407l-18.562 51.187-52.219-24.344 24.812 51.188-54.468 19 54.468 19-24.812 51.188 52.219-24.344L469.488 512l19.375-53.406 52.218 24.344-24.812-51.188 54.469-19-54.469-19 24.812-51.188-52.218 24.344-18.719-51.594Z" />
+        <path fill="url(#c)" d="m470.738 345.172-13.063 36.844-35.187-16.782 16.718 35.313-36.718 13.094 36.718 13.125-16.718 35.312 35.187-16.781 13.063 36.844 13.062-36.844 35.188 16.781-16.719-35.312 36.719-13.125-36.719-13.094 16.719-35.313-35.188 16.782-13.062-36.844Z" opacity=".772" />
       </svg>
     </div>
   );
